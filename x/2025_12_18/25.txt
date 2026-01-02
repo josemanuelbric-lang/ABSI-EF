@@ -1,0 +1,33 @@
+import numpy as np
+import matplotlib.pyplot as plt
+from sympy import sieve
+
+def experimento_frecuencias(n_max):
+    primos = np.array(list(sieve.primerange(1, n_max + 1)))
+    
+    # 1. Tu frecuencia original
+    f1 = 0.5
+    brecha1 = np.abs((3.5 + 1.5 * np.sin(primos * f1)) - (3.5 + 1.2 * np.sin(primos * 0.51)))
+    area1 = np.cumsum(brecha1)
+    
+    # 2. Nueva frecuencia basada en PI (proporción armónica)
+    f_pi = (np.pi / 6)  # aprox 0.5235
+    brecha_pi = np.abs((3.5 + 1.5 * np.sin(primos * f_pi)) - (3.5 + 1.2 * np.sin(primos * 0.51)))
+    area_pi = np.cumsum(brecha_pi)
+    
+    # 3. Referencia de Gauss
+    gauss = np.cumsum(1 / np.log(primos + 1.1))
+    gauss_norm1 = gauss * (area1[-1] / gauss[-1])
+    gauss_norm_pi = gauss * (area_pi[-1] / gauss[-1])
+    
+    # Cálculos de Correlación
+    corr1 = np.corrcoef(area1, gauss_norm1)[0, 1]
+    corr_pi = np.corrcoef(area_pi, gauss_norm_pi)[0, 1]
+    
+    return corr1, corr_pi, primos, area1, area_pi
+
+# Ejecución
+c1, c_pi, p, a1, a_pi = experimento_frecuencias(1048576)
+
+print(f"Correlación con 0.5: {c1:.7f}")
+print(f"Correlación con PI/6: {c_pi:.7f}")

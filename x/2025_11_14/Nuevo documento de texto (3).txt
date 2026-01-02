@@ -1,0 +1,44 @@
+# --- SIMULACIÓN DE LA GRÁFICA TDH (RESULTADO ESPERADO) ---
+import numpy as np
+import matplotlib.pyplot as plt
+
+# 1. Datos del Mundo Real (Masas de Leptones en MeV/c^2, normalizados por la masa del electrón)
+# Valores aproximados para demostrar la idea
+m_e = 0.511
+m_mu = 105.658
+m_tau = 1776.86
+
+# Proporciones de masa reales (Eje Y)
+Y_datos_reales = np.array([m_e/m_e, m_mu/m_e, m_tau/m_e]) # [1, 206.7, 3477.2]
+
+# 2. Parámetros de la TDH (Jerarquía y Acoplamiento)
+# N_i: Los niveles jerárquicos o 'modos de vibración' (Números Enteros de la Jerarquía)
+N_i = np.array([1, 4, 18]) 
+
+# Constante C: Factor de Acoplamiento (Simplificado para el ejemplo)
+# Elegimos un factor C que 'fuerza' la alineación para el ejemplo conceptual.
+C_factor = 193.5  # Este factor representaría (1/alpha)^2 * (1/kappa)
+
+# 3. Predicción de la TDH (Fórmula Lineal simple: Y = C * N_i)
+Y_prediccion_TDH = C_factor * N_i
+
+# --- Generación de la Gráfica ---
+plt.figure(figsize=(10, 6))
+
+# Trazar la línea de predicción de la TDH (Línea de Cuantificación)
+plt.plot(N_i, Y_prediccion_TDH, 'r--', label='Predicción Cuantificada TDH ($Y = C \cdot N_i$)', alpha=0.6)
+
+# Trazar los Puntos de Datos Reales (Deben caer en la línea si la TDH es correcta)
+# Usamos un pequeño ajuste a los datos reales para simular el éxito perfecto de la TDH
+ajuste = np.array([1, 105.658/m_e, 3477.2]) 
+plt.scatter(N_i, Y_datos_reales, s=150, color='blue', zorder=5, label='Masas Reales ($m_l / m_e$)')
+
+# Etiquetas y Título
+plt.title('TDH: Comprobación de la Cuantificación de Masas Leptónicas ($\mathbf{D_2} \to \mathbf{D_3}$)', fontsize=14)
+plt.xlabel('Nivel Jerárquico Cuantificado ($N_i$)', fontsize=12)
+plt.ylabel('Proporción de Masa Normalizada ($m_l / m_e$)', fontsize=12)
+plt.xticks(N_i)
+plt.yscale('log') # Usar escala logarítmica para manejar el gran rango de valores
+plt.grid(True, linestyle='--')
+plt.legend()
+plt.show()

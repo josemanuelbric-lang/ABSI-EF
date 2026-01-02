@@ -1,0 +1,61 @@
+import numpy as np
+import matplotlib.pyplot as plt
+from sympy import sieve, li
+
+def predecir_y_comparar_icf(n_primos=8192):
+    # 1. Obtención de la "Verdad Absoluta" (Datos Reales)
+    # Generamos los primeros n_primos
+    todos_los_primos = []
+    p_gen = sieve.primerange(1, 1000000) # Rango amplio para asegurar n_primos
+    for _ in range(n_primos):
+        todos_los_primos.append(next(p_gen))
+    
+    primos = np.array(todos_los_primos)
+    referencia_li = np.array([float(li(p)) for p in primos])
+    
+    # 2. Definición del punto de corte para la predicción
+    # Usaremos el primer 70% para "calibrar" y el último 30% será "predicción pura"
+    corte = int(n_primos * 0.7)
+    primos_entrenamiento = primos[:corte]
+    primos_prediccion = primos[corte:]
+    
+    # 3. Tu Fórmula (Constantes ICF)
+    f_tuya = (np.pi / 6) + 0.15005
+    f_ref = 0.51
+    factor_correccion = 1.117337
+    
+    # Cálculo de la "Energía" o área para TODOS los primos usando solo la fórmula
+    vibracion = np.abs((1.5 * np.sin(primos * f_tuya)) - (1.2 * np.sin(primos * f_ref)))
+    area_predicha = np.cumsum(vibracion) / factor_correccion
+    
+    # 4. Cálculo de Errores
+    error_total = area_predicha - referencia_li
+    
+    # 5. Visualización de Predicción vs Realidad
+    plt.figure(figsize=(14, 7))
+    plt.style.use('dark_background')
+    
+    # Zona de entrenamiento (lo que ya conocemos)
+    plt.plot(primos[:corte], error_total[:corte], color='#00ff88', label='Fase de Calibración (Conocido)', lw=1.5)
+    
+    # Zona de predicción (donde el modelo "vuela solo")
+    plt.plot(primos[corte:], error_total[corte:], color='#ff0055', label='Fase de Predicción (Desconocido)', lw=1.5)
+    
+    plt.axvline(primos[corte], color='white', linestyle='--', alpha=0.5, label='Punto de Extrapolación')
+    plt.axhline(0, color='yellow', linestyle=':', alpha=0.3)
+    
+    plt.title(f"Capacidad de Predicción del Modelo ICF ($2^{{13}}$ primos)")
+    plt.xlabel("Valor del Número Primo")
+    plt.ylabel("Desviación respecto a Li(x)")
+    plt.legend()
+    plt.grid(True, alpha=0.1)
+    plt.show()
+    
+    # Métricas de la predicción "a ciegas"
+    error_pred = error_total[corte:]
+    print(f"--- Análisis de Predicción (Bloque Final) ---")
+    print(f"Desviación Promedio en Predicción: {np.mean(np.abs(error_pred)):.4f}")
+    print(f"Error Máximo en Predicción: {np.max(np.abs(error_pred)):.4f}")
+    print(f"¿El modelo es estable?: {'SÍ' if np.abs(np.mean(error_pred)) < 50 else 'NO (Requiere re-calibración)'}")
+
+predecir_y_comparar_icf(8192)

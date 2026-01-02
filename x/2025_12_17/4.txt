@@ -1,0 +1,115 @@
+import numpy as np
+import networkx as nx
+import matplotlib.pyplot as plt
+
+# --- 1. Definición de la Función de Collatz y la Estructura del Árbol ---
+
+def collatz_step(n):
+    """Aplica la regla de Collatz y devuelve el nuevo número y el tipo de paso."""
+    if n % 2 == 0:
+        # Par: Descenso (R)
+        return n // 2, 'R' 
+    else:
+        # Impar: Ascenso (L)
+        return 3 * n + 1, 'L'
+
+def construir_arbol_binario(G, n_inicial):
+    """
+    Construye el camino de Collatz como un árbol binario (grafo dirigido).
+    
+    G: El objeto Graph de NetworkX.
+    n_inicial: El valor inicial del nodo.
+    """
+    
+    # El nodo se identifica por su valor numérico
+    # Agregamos el nodo inicial con su etiqueta
+    if n_inicial not in G:
+        G.add_node(n_inicial, label=str(n_inicial))
+
+    n = n_inicial
+    
+    # El conjunto para rastrear los nodos visitados y evitar ciclos infinitos en el grafo.
+    # Usamos el propio G.nodes() para verificar si el nodo ya existe en el grafo.
+    
+    while n != 1:
+        
+        n_siguiente, paso_tipo = collatz_step(n)
+        
+        # Verificar si el borde ya existe para evitar errores y ciclos en el grafo.
+        if (n, n_siguiente) in G.edges():
+            break
+
+        # Agregamos el nodo siguiente si no existe
+        if n_siguiente not in G:
+            G.add_node(n_siguiente, label=str(n_siguiente))
+
+        # Agregamos la arista (conexión) con la etiqueta del paso (R o L)
+        G.add_edge(n, n_siguiente, label=paso_tipo)
+        
+        # Si el siguiente nodo es parte del ciclo 4 -> 2 -> 1, detenemos la construcción aquí.
+        if n_siguiente in [1, 2, 4] and n in [1, 2, 4]:
+            break
+            
+        n = n_siguiente
+    
+    # Si terminamos en el ciclo 1 (como se espera), podemos conectar 1 -> 4 para cerrar el ciclo si aún no está.
+    if 1 in G and 4 in G and (1, 4) not in G.edges():
+         G.add_edge(1, 4, label='L')
+
+
+# --- 2. Función de Visualización del Árbol ---
+
+def dibujar_arbol_collatz(G, n_inicial):
+    """Dibuja el árbol de Collatz y etiqueta los nodos y aristas."""
+    
+    plt.figure(figsize=(14, 10))
+    
+    # ⚠️ IMPORTANTE: 'dot' requiere la instalación de Graphviz o PyGraphviz/pydot.
+    try:
+        # Usamos un layout de árbol jerárquico para reflejar la estructura de la secuencia
+        pos = nx.drawing.nx_pydot.graphviz_layout(G, prog='dot')
+    except:
+        # Si graphviz no está instalado, usamos un layout por defecto
+        print("Advertencia: Graphviz no instalado. Usando spring_layout.")
+        pos = nx.spring_layout(G, k=0.5, iterations=50) 
+
+    # Dibujar los nodos
+    # Usamos colores para distinguir los números grandes y el ciclo final
+    node_colors = ['red' if node == 1 else 'green' if node <= 4 else 'blue' for node in G.nodes()]
+    node_sizes = [2000 if node == 1 else 1500 for node in G.nodes()]
+    
+    nx.draw_networkx_nodes(G, pos, node_size=node_sizes, node_color=node_colors, alpha=0.9)
+    
+    # Dibujar las etiquetas de los nodos (los valores numéricos)
+    labels = nx.get_node_attributes(G, 'label')
+    nx.draw_networkx_labels(G, pos, labels=labels, font_size=10, font_color='white')
+    
+    # Dibujar las aristas (conexiones)
+    nx.draw_networkx_edges(G, pos, edge_color='gray', width=1.5, alpha=0.6, arrowsize=20)
+    
+    # Etiquetas de las aristas (R o L)
+    edge_labels = nx.get_edge_attributes(G, 'label')
+    # Usamos colores para distinguir el ascenso (L=rojo) y el descenso (R=azul)
+    edge_colors = {'R': 'blue', 'L': 'red'}
+    
+    # Esto asegura que el color de la etiqueta coincida con el tipo de paso.
+    edge_label_colors = [edge_colors[edge_labels[edge]] for edge in G.edges()]
+
+    nx.draw_networkx_edge_labels(G, pos, edge_labels=edge_labels, font_color='black', font_size=12)
+    
+    # Crear una leyenda simple
+    plt.scatter([], [], color='red', label='Ascenso (L: 3N+1)')
+    plt.scatter([], [], color='blue', label='Descenso (R: N/2)')
+    plt.legend(scatterpoints=1, frameon=False, title="Tipo de Paso")
+    
+    plt.title(f'Árbol de Expresiones Binario de Collatz para N = {n_inicial}', fontsize=16)
+    plt.axis('off')
+    plt.show()
+
+# --- EJEMPLO DE USO ---
+
+N_INICIO = 27 # Un número con una trayectoria larga
+G_collatz = nx.DiGraph() # Usamos un grafo dirigido para mostrar la dirección de la secuencia
+
+construir_arbol_binario(G_collatz, N_INICIO)
+dibujar_arbol_collatz(G_collatz, N_INICIO)

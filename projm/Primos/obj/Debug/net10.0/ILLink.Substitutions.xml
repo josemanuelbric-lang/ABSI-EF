@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<linker>
+  <assembly fullname="Primos">
+    <resource name="FSharpSignatureData.Primos" action="remove"></resource>
+    <resource name="FSharpSignatureCompressedData.Primos" action="remove"></resource>
+    <resource name="FSharpSignatureDataB.Primos" action="remove"></resource>
+    <resource name="FSharpSignatureCompressedDataB.Primos" action="remove"></resource>
+    <resource name="FSharpOptimizationData.Primos" action="remove"></resource>
+    <resource name="FSharpOptimizationCompressedData.Primos" action="remove"></resource>
+    <resource name="FSharpOptimizationDataB.Primos" action="remove"></resource>
+    <resource name="FSharpOptimizationCompressedDataB.Primos" action="remove"></resource>
+    <resource name="FSharpOptimizationInfo.Primos" action="remove"></resource>
+    <resource name="FSharpSignatureInfo.Primos" action="remove"></resource>
+  </assembly>
+</linker>

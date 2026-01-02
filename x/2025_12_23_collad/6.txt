@@ -1,0 +1,23 @@
+def rastrear_numero(n, niveles):
+    valor = n
+    ruta = ""
+    zr=0
+    zl=0
+    for i in range(niveles):
+        if valor == 1:
+            ruta += "~"
+            break
+        if valor % 2 == 0:
+            valor //= 2
+            ruta += "R"
+            zr+=1
+        else:
+            valor = (valor * 3) + 1
+            ruta += "L"
+            zl+=1
+    ruta += f" R{zr} L{zl} T{zr+zl}"
+    return ruta, valor
+
+num = 837799
+ruta_final, valor_final = rastrear_numero(num, 1024)
+print(f"Número: {num} | Ruta: {ruta_final} | Valor tras 12 niveles: {valor_final}")

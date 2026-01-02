@@ -1,0 +1,66 @@
+import numpy as np
+import matplotlib.pyplot as plt
+
+# --- 1. Constantes TDH ---
+D = 4.0
+N_OBSERVABLE = 3.8710 
+
+# Error Estructural (epsilon) en el universo observable
+EPSILON = (D - N_OBSERVABLE) / D # Aprox. 0.03225
+
+# Definición analítica del Límite de Complejidad TDH
+L_MAX_TEORICO = -1 / np.log(1 - EPSILON) 
+
+# Umbral de Inviabilidad (ej. 1 en 10 mil millones)
+UMBRAL_INVIABILIDAD = 1e-10
+
+# --- 2. Simulación de la Progresión ---
+# Rango de tamaño de input para el problema NP (SAT)
+N_VALORES = np.arange(1, 15)
+
+# Cálculo de la Probabilidad de Éxito Total
+probabilidades = []
+for n in N_VALORES:
+    # 1. Lógica (Tiempo Requerido): Pasos en el peor caso para SAT (2^n)
+    pasos_requeridos = 2**n
+    
+    # 2. Consecuencia Física (P(Éxito)): La probabilidad de que NINGÚN paso falle.
+    # P_total = (1 - epsilon) ^ T(n)
+    P_exito_total = (1 - EPSILON) ** pasos_requeridos
+    probabilidades.append(P_exito_total)
+
+# --- 3. Generación del Gráfico (El Colapso) ---
+plt.figure(figsize=(10, 6))
+
+# Curva de Colapso de la Probabilidad de Éxito
+plt.plot(N_VALORES, probabilidades, marker='o', color='red', linestyle='-', 
+         label=r'Probabilidad de Éxito para SAT ($\mathbf{2^n}$)')
+
+# Umbral de Inviabilidad
+plt.axhline(y=UMBRAL_INVIABILIDAD, color='blue', linestyle='--', label=f'Umbral de Inviabilidad ({UMBRAL_INVIABILIDAD:.0e})')
+
+# Límite de Complejidad (dónde 2^n cruza L_MAX)
+plt.axvline(x=np.log2(L_MAX_TEORICO), color='green', linestyle=':', label=f'Cruce $2^n = L_{{MAX}}$ (n $\\approx$ {np.log2(L_MAX_TEORICO):.2f})')
+
+plt.xlabel('Tamaño del Input ($\mathbf{n}$) del Problema SAT')
+plt.ylabel('Probabilidad de Éxito Total (Escala Logarítmica)')
+plt.title(f'Colapso de P(Éxito NP) bajo Error Estructural ($\mathbf{{\\epsilon}} = {EPSILON:.5f}$)')
+plt.yscale('log')
+plt.grid(True, which="both", ls="--", alpha=0.6)
+plt.ylim(1e-160, 1.1)
+plt.legend()
+plt.tight_layout()
+plt.show()
+
+# --- 4. Conclusiones
+print("-" * 50)
+print(f"Parámetros TDH:")
+print(f"  Error Estructural (epsilon): {EPSILON:.5f}")
+print(f"  Límite Teórico L_MAX: {L_MAX_TEORICO:.2f} pasos")
+print("-" * 50)
+print("Análisis de Colapso:")
+for n, P in zip(N_VALORES, probabilidades):
+    if P < UMBRAL_INVIABILIDAD:
+        print(f"n={n}: Colapso. P(Éxito) = {P:.2e} (INVIABLE)")
+    elif n == 4:
+        print(f"n={n}: P(Éxito) = {P:.2f} (ÚLTIMO PUNTO SEGURO)")

@@ -1,0 +1,328 @@
+import time
+import math
+
+class CazadorPrimosGigantes:
+    def __init__(self):
+        self.primo_mas_grande = 2
+        self.termino_actual = 1
+        self.a_actual = 2
+        self.inicio_tiempo = time.time()
+        self.primos_especiales_encontrados = []
+    
+    def _es_primo(self, n):
+        """Test de primalidad optimizado para números grandes"""
+        if n < 2: return False
+        if n in (2, 3): return True
+        if n % 2 == 0 or n % 3 == 0: return False
+        
+        # Para números grandes, usar más iteraciones
+        i = 5
+        limite = int(math.isqrt(n)) + 1
+        while i * i <= n and i < limite:
+            if n % i == 0 or n % (i + 2) == 0:
+                return False
+            i += 6
+        return True
+    
+    def _es_primo_probabilistico(self, n, k=10):
+        """Test de Miller-Rabin para números muy grandes"""
+        if n < 2: return False
+        if n in (2, 3): return True
+        if n % 2 == 0: return False
+        
+        # Escribir n-1 como d*2^r
+        d = n - 1
+        r = 0
+        while d % 2 == 0:
+            d //= 2
+            r += 1
+        
+        # Testear k veces
+        for _ in range(k):
+            a = 2  # Podría usar bases aleatorias, pero 2 funciona bien
+            x = pow(a, d, n)
+            if x == 1 or x == n - 1:
+                continue
+            for _ in range(r - 1):
+                x = pow(x, 2, n)
+                if x == n - 1:
+                    break
+            else:
+                return False
+        return True
+    
+    def _buscar_primos_gigantes_en_termino(self, a_n):
+        """Busca primos gigantes en el término actual"""
+        primos_encontrados = []
+        
+        # Estrategia 1: Verificar si a_n mismo es primo
+        if self._es_primo_probabilistico(a_n):
+            primos_encontrados.append(a_n)
+            return primos_encontrados
+        
+        # Estrategia 2: Buscar factores primos grandes
+        # Para números gigantes, buscar factores de forma inteligente
+        temp = a_n
+        factores_probables = set()
+        
+        # Probar factores pequeños primero
+        for p in [2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31]:
+            if temp % p == 0:
+                if self._es_primo(p) and p > self.primo_mas_grande:
+                    factores_probables.add(p)
+                temp //= p
+        
+        # Para el resto, probar con números más grandes
+        if temp > 10**6:  # Si queda un número grande
+            # Probar si el resto es primo
+            if self._es_primo_probabilistico(temp):
+                factores_probables.add(temp)
+            else:
+                # Buscar factores en un rango limitado
+                for i in range(1000, min(10**7, temp), 1000):
+                    if temp % i == 0 and self._es_primo_probabilistico(i):
+                        factores_probables.add(i)
+                        break
+        
+        return list(factores_probables)
+    
+    def _mostrar_progreso_gigante(self, primo, termino, tamaño_digitos):
+        """Muestra el progreso de búsqueda de primos gigantes"""
+        tiempo_transcurrido = time.time() - self.inicio_tiempo
+        horas = int(tiempo_transcurrido // 3600)
+        minutos = int((tiempo_transcurrido % 3600) // 60)
+        segundos = tiempo_transcurrido % 60
+        
+        print(f"🎯 Término {termino:4d} | Primo: {primo:15,d} | "
+              f"Digitos: {tamaño_digitos:3d} | "
+              f"Tiempo: {horas:02d}:{minutos:02d}:{segundos:05.2f}")
+    
+    def buscar_primo_gigante(self, limite_terminos=1000, objetivo_digitos=100):
+        """Busca el primo más grande posible"""
+        print("🚀 CAZADOR DE PRIMOS GIGANTES")
+        print("=" * 80)
+        print(" Buscando el número primo más grande usando tu secuencia diádica")
+        print("=" * 80)
+        
+        print(f"🎯 OBJETIVO: Primo con {objetivo_digitos}+ dígitos")
+        print(f"⏰ Límite: {limite_terminos} términos de tu secuencia")
+        print("-" * 80)
+        
+        record_digitos = 0
+        
+        for termino in range(1, limite_terminos + 1):
+            # Calcular término actual
+            if termino == 1:
+                a_n = 2
+            else:
+                a_n = 4 * self.a_actual + 2
+                self.a_actual = a_n
+            
+            # Mostrar información del término
+            digitos_actual = len(str(a_n))
+            if digitos_actual > record_digitos:
+                record_digitos = digitos_actual
+                print(f"\n📈 Término {termino:4d} | Número: {a_n:.2e} | "
+                      f"Dígitos: {digitos_actual:4d} | Nuevo récord de tamaño!")
+            
+            # Buscar primos gigantes en este término
+            primos_encontrados = self._buscar_primos_gigantes_en_termino(a_n)
+            
+            for primo in primos_encontrados:
+                if primo > self.primo_mas_grande:
+                    self.primo_mas_grande = primo
+                    digitos_primo = len(str(primo))
+                    self.primos_especiales_encontrados.append(primo)
+                    
+                    self._mostrar_progreso_gigante(primo, termino, digitos_primo)
+                    
+                    # Verificar si alcanzamos el objetivo
+                    if digitos_primo >= objetivo_digitos:
+                        print(f"\n🎉 ¡OBJETIVO ALCANZADO! Primo de {digitos_primo} dígitos encontrado!")
+                        self._mostrar_resumen_final()
+                        return primo
+            
+            # Mostrar progreso cada 10 términos
+            if termino % 10 == 0:
+                tiempo_actual = time.time() - self.inicio_tiempo
+                print(f"⏳ Progreso: {termino}/{limite_terminos} términos | "
+                      f"Tiempo: {tiempo_actual:.1f}s | "
+                      f"Récord actual: {self.primo_mas_grande:,} "
+                      f"({len(str(self.primo_mas_grande))} dígitos)")
+            
+            # Seguridad: no procesar números demasiado grandes
+            if a_n > 10**1000:  # Límite de 1000 dígitos
+                print(f"\n⚠️  Límite de tamaño alcanzado (1000+ dígitos)")
+                break
+        
+        self._mostrar_resumen_final()
+        return self.primo_mas_grande
+    
+    def _mostrar_resumen_final(self):
+        """Muestra el resumen final de la búsqueda"""
+        tiempo_total = time.time() - self.inicio_tiempo
+        horas = int(tiempo_total // 3600)
+        minutos = int((tiempo_total % 3600) // 60)
+        segundos = tiempo_total % 60
+        
+        print("\n" + "=" * 80)
+        print("🎉 BÚSQUEDA COMPLETADA!")
+        print("=" * 80)
+        print(f"📊 ESTADÍSTICAS FINALES:")
+        print(f"   • Primo más grande encontrado: {self.primo_mas_grande:,}")
+        print(f"   • Dígitos del primo más grande: {len(str(self.primo_mas_grande))}")
+        print(f"   • Términos procesados: {self.termino_actual}")
+        print(f"   • Tiempo total: {horas:02d}:{minutos:02d}:{segundos:05.2f}")
+        
+        if self.primos_especiales_encontrados:
+            print(f"\n🔍 PRIMOS ESPECIALES ENCONTRADOS:")
+            # Mostrar solo los más interesantes
+            primos_mostrar = sorted(set(self.primos_especiales_encontrados))[-10:]  # Últimos 10
+            for i, primo in enumerate(primos_mostrar, 1):
+                digitos = len(str(primo))
+                print(f"   {i:2d}. {primo:15,} ({digitos} dígitos)")
+
+# GENERADOR DE PRIMOS DE MERSENNE
+class CazadorMersenne:
+    def __init__(self):
+        self.primos_mersenne = []
+        self.inicio_tiempo = time.time()
+    
+    def buscar_mersenne(self, limite_exponente=1000):
+        """Busca primos de Mersenne (2^p - 1)"""
+        print(f"\n🔍 BUSCANDO PRIMOS DE MERSENNE (hasta 2^{limite_exponente}-1)")
+        print("=" * 60)
+        
+        for p in range(2, limite_exponente + 1):
+            if self._es_primo(p):  # p debe ser primo para que 2^p-1 pueda ser primo
+                mersenne = 2**p - 1
+                
+                # Test de Lucas-Lehmer simplificado
+                if self._test_lucas_lehmer(p):
+                    self.primos_mersenne.append((p, mersenne))
+                    digitos = len(str(mersenne))
+                    print(f"🎯 Mersenne: 2^{p}-1 = {mersenne:.2e} | "
+                          f"Dígitos: {digitos} | ¡PRIMO ENCONTRADO!")
+                
+                # Mostrar progreso
+                if p % 50 == 0:
+                    tiempo_actual = time.time() - self.inicio_tiempo
+                    print(f"⏳ Exponente: {p}/{limite_exponente} | "
+                          f"Tiempo: {tiempo_actual:.1f}s | "
+                          f"Mersenne encontrados: {len(self.primos_mersenne)}")
+        
+        print(f"\n✅ Encontrados {len(self.primos_mersenne)} primos de Mersenne")
+        return self.primos_mersenne
+    
+    def _es_primo(self, n):
+        """Test de primalidad simple"""
+        if n < 2: return False
+        if n in (2, 3): return True
+        if n % 2 == 0 or n % 3 == 0: return False
+        i = 5
+        while i * i <= n:
+            if n % i == 0 or n % (i + 2) == 0:
+                return False
+            i += 6
+        return True
+    
+    def _test_lucas_lehmer(self, p):
+        """Test de Lucas-Lehmer simplificado para primos de Mersenne"""
+        if p == 2: return True
+        mersenne = 2**p - 1
+        s = 4
+        for _ in range(p - 2):
+            s = (s * s - 2) % mersenne
+        return s == 0
+
+# INTERFAZ DE USUARIO
+def menu_principal():
+    """Menú principal para elegir tipo de búsqueda"""
+    print("🎯 CAZADOR DE NÚMEROS PRIMOS GIGANTES")
+    print("=" * 50)
+    print("1. Buscar primo más grande (tu secuencia diádica)")
+    print("2. Buscar primos de Mersenne (2^p - 1)")
+    print("3. Comparar ambos métodos")
+    print("4. Salir")
+    
+    while True:
+        try:
+            opcion = int(input("\nElige una opción (1-4): "))
+            if 1 <= opcion <= 4:
+                return opcion
+            print("❌ Por favor elige 1, 2, 3 o 4")
+        except ValueError:
+            print("❌ Por favor ingresa un número")
+
+# EJECUCIÓN PRINCIPAL
+if __name__ == "__main__":
+    try:
+        while True:
+            opcion = menu_principal()
+            
+            if opcion == 1:
+                print("\n" + "="*60)
+                print("🚀 MODO: BÚSQUEDA DE PRIMO MÁS GRANDE")
+                print("="*60)
+                
+                try:
+                    limite = int(input("Límite de términos (ej: 100, 500, 1000): ") or "100")
+                    objetivo = int(input("Objetivo de dígitos (ej: 50, 100, 200): ") or "50")
+                except ValueError:
+                    limite = 100
+                    objetivo = 50
+                    print("⚠️  Usando valores por defecto: 100 términos, 50 dígitos")
+                
+                cazador = CazadorPrimosGigantes()
+                primo_record = cazador.buscar_primo_gigante(limite, objetivo)
+                
+                input("\n📝 Presiona Enter para continuar...")
+                
+            elif opcion == 2:
+                print("\n" + "="*60)
+                print("🔍 MODO: BÚSQUEDA DE PRIMOS DE MERSENNE")
+                print("="*60)
+                
+                try:
+                    limite_exp = int(input("Exponente máximo (ej: 100, 500, 1000): ") or "100")
+                except ValueError:
+                    limite_exp = 100
+                    print("⚠️  Usando valor por defecto: exponente 100")
+                
+                cazador_mersenne = CazadorMersenne()
+                mersennes = cazador_mersenne.buscar_mersenne(limite_exp)
+                
+                input("\n📝 Presiona Enter para continuar...")
+                
+            elif opcion == 3:
+                print("\n" + "="*60)
+                print("⚖️  MODO: COMPARACIÓN DE MÉTODOS")
+                print("="*60)
+                
+                # Probar ambos métodos
+                print("🔍 Probando tu método diádico...")
+                cazador1 = CazadorPrimosGigantes()
+                primo1 = cazador1.buscar_primo_gigante(50, 20)
+                
+                print("\n🔍 Probando método Mersenne...")
+                cazador2 = CazadorMersenne()
+                mersennes = cazador2.buscar_mersenne(50)
+                
+                if mersennes:
+                    primo2 = mersennes[-1][1]  # Último Mersenne encontrado
+                    print(f"\n📊 COMPARACIÓN:")
+                    print(f"   • Tu método: {primo1:,} ({len(str(primo1))} dígitos)")
+                    print(f"   • Mersenne:  {primo2:,} ({len(str(primo2))} dígitos)")
+                
+                input("\n📝 Presiona Enter para continuar...")
+                
+            elif opcion == 4:
+                print("\n👋 ¡Hasta luego!")
+                break
+                
+    except KeyboardInterrupt:
+        print(f"\n\n⏹️  Programa interrumpido por el usuario")
+    except Exception as e:
+        print(f"\n❌ Error: {e}")
+        import traceback
+        traceback.print_exc()

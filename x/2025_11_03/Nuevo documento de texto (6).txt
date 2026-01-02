@@ -1,0 +1,83 @@
+import numpy as np
+
+# --- Herramientas para la Simetría Estructural (TDH_A) ---
+
+def obtener_componentes_binarias(n):
+    """Descompone n en sus dimensiones binarias (potencias de 2)."""
+    if n <= 0 or n % 2 != 0: return []
+    componentes = []
+    i = 0
+    while (1 << i) <= n:
+        if (n >> i) & 1:
+            componentes.append(1 << i)
+        i += 1
+    return componentes
+
+def verificar_simetria_conservada(E_par):
+    """Verifica la identidad TDH_A: Σk_i = k_total."""
+    dimensiones = obtener_componentes_binarias(E_par)
+    suma_k_i = sum(dim / 2 for dim in dimensiones)
+    k_total = E_par / 2
+    return suma_k_i == k_total
+
+# --- Herramientas para el Equilibrio Obligatorio (TDH_S) ---
+
+def es_primo(n):
+    """Verifica si un número es primo (requerido para el equilibrio)."""
+    if n < 2: return False
+    for i in range(2, int(np.sqrt(n)) + 1):
+        if n % i == 0: return False
+    return True
+
+def verificar_equilibrio_primo(E_par):
+    """Verifica si E_par es cubierto por dos primos (Soporte para TDH_S)."""
+    k = E_par // 2
+    delta = 0
+    
+    # Búsqueda que demuestra que el equilibrio (p1+p2=E_par) es alcanzable
+    while True:
+        p1 = k + delta
+        p2 = k - delta
+        
+        if p2 <= 1:
+            return False # Fallo del postulado TDH_S (Goldbach refutada)
+        
+        if es_primo(p1) and es_primo(p2):
+            # El equilibrio estructural fue encontrado
+            return True 
+        
+        delta += 1
+# --- Prueba en Rango ---
+RANGO_MAXIMO = 2000 # Rango de prueba para soportar el postulado
+pares_a_probar = [n for n in range(4, RANGO_MAXIMO + 2, 2)]
+
+print(f"🚀 Iniciando prueba TDH-TN de la Simetría y el Equilibrio hasta E_par = {RANGO_MAXIMO}...")
+
+for E_par in pares_a_probar:
+    
+    # Paso 1: Verificación de la Simetría (TDH_A)
+    simetria_ok = verificar_simetria_conservada(E_par)
+    
+    if not simetria_ok:
+        print(f"\n🛑 Falla en el Fundamento Analítico (TDH_A) en E_par={E_par}!")
+        print("La identidad algebraica $\\sum k_i = k_{{total}}$ NO se cumplió.")
+        break
+        
+    # Paso 2: Verificación de la Consecuencia Obligatoria (TDH_S)
+    equilibrio_ok = verificar_equilibrio_primo(E_par)
+    
+    if not equilibrio_ok:
+        # Si la Simetría es PERFECTA (TDH_A) pero el Equilibrio falla (TDH_S),
+        # esto refuta el postulado TDH-TN ($N=0$).
+        print(f"\n🛑 Falla en el Postulado Estructural (TDH_S) en E_par={E_par}!")
+        print("La Simetría Conservada falló en obligar al Equilibrio Prima (Goldbach falló).")
+        break
+
+# --- Resultado del Soporte Analítico ---
+if simetria_ok and equilibrio_ok:
+    print("\n" + "=" * 60)
+    print(f"✅ **SOPORTE COMPROBADO para {RANGO_MAXIMO} números pares.**")
+    print(f"1. **Fundamento Analítico (TDH_A):** La Simetría Central se conservó perfectamente.")
+    print("2. **Postulado Estructural (TDH_S):** El Equilibrio Prima fue siempre encontrado.")
+    print("\nLa Simetría Conservada obliga a la Cobertura Prima, lo que soporta el postulado TDH-TN ($N=0$) de Cierre Dimensional.")
+    print("=" * 60)

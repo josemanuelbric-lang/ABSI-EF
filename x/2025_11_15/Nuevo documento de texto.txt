@@ -1,0 +1,166 @@
+# --- 1. Definición de los componentes de la TDH ---
+
+class Atomodimensional:
+    """
+    Representa un 'An'. La unidad cuántica de una Dimensión.
+    Cada átomo tiene una 'tensión_base' que contribuye al total.
+    """
+    def __init__(self, tension_base=1.0):
+        self.tension_base = tension_base
+
+class Dimension:
+    """
+    Representa una 'Dn'. Es un CONJUNTO FINITO de Atomodimensionales.
+    """
+    def __init__(self, nivel_n):
+        self.n = nivel_n  # El nivel de la jerarquía (0, 1, 2...)
+        self.atomos = []  # El conjunto finito de An (Postulado 9)
+    
+    def add_atomos(self, cantidad, tension_por_atomo=1.0):
+        """Añade una cantidad finita de An a esta Dimensión."""
+        for _ in range(cantidad):
+            self.atomos.append(Atomodimensional(tension_por_atomo))
+        print(f"  > D{self.n} ahora tiene {self.get_conteo()} A{self.n}.")
+
+    def get_conteo(self):
+        """Retorna el conteo finito de An (Postulado 9)."""
+        return len(self.atomos)
+
+    def get_tension_total(self):
+        """Calcula la Tensión total de la Dimensión (Ecuación 1)."""
+        if not self.atomos:
+            return 0
+        return sum(a.tension_base for a in self.atomos)
+
+# --- 2. Definición del Motor de la Jerarquía (Las Leyes Físicas) ---
+
+class JerarquiaTDH:
+    """
+    El 'Universo'. Contiene la jerarquía de Dimensiones y 
+    las reglas de emergencia (las "fuerzas").
+    """
+    def __init__(self, N_acoplamiento=2, kappa_base=1000):
+        # N: Tu regla de potencia (x^N). Cuántos An se acoplan.
+        self.N_acoplamiento = N_acoplamiento 
+        
+        # kappa: El umbral de Tensión base (Ecuación 2)
+        self.kappa_base = kappa_base
+        
+        # Un diccionario para mantener las dimensiones organizadas
+        self.dimensiones = {} # {0: Dimension(0), 1: Dimension(1), ...}
+
+    def get_umbral_kappa(self, n):
+        """El umbral de Tensión (kappa) se escala con la dimensión."""
+        # Esta es una REGLA DE SIMULACIÓN.
+        # Asumimos que es más "difícil" saltar a dimensiones más altas.
+        return self.kappa_base * (n + 1)
+
+    def crear_dimension_inicial(self, n=0, cantidad_inicial=5000):
+        """Inicia el universo con la Dimensión base (ej. D0, el Vacío)."""
+        if n not in self.dimensiones:
+            print(f"Creando Dimensión Primordial D{n}...")
+            self.dimensiones[n] = Dimension(n)
+            self.dimensiones[n].add_atomos(cantidad_inicial)
+            self.reportar_estado()
+
+    def check_emergencia(self, n):
+        """
+        Verifica si D(n) tiene suficiente Tensión para "saltar" a D(n+1).
+        Esta es la "demostración" de la unificación.
+        """
+        if n not in self.dimensiones:
+            print(f"ERROR: D{n} no existe.")
+            return
+
+        dim_actual = self.dimensiones[n]
+        tension_actual = dim_actual.get_tension_total()
+        umbral_actual = self.get_umbral_kappa(n)
+
+        print(f"\n[Check D{n}]: Tensión={tension_actual} / Umbral={umbral_actual}")
+
+        # --- El Salto (Ecuación 2) ---
+        if tension_actual > umbral_actual:
+            print(f"  ¡EMERGENCIA DETECTADA! D{n} --> D{n+1}")
+            
+            # --- Regla de Potencia (Ecuación 3) ---
+            conteo_D_n = dim_actual.get_conteo()
+            conteo_D_n_plus_1 = int(conteo_D_n // self.N_acoplamiento)
+            
+            n_siguiente = n + 1
+            
+            # Crear la nueva dimensión si no existe
+            if n_siguiente not in self.dimensiones:
+                self.dimensiones[n_siguiente] = Dimension(n_siguiente)
+
+            # Añadir los nuevos Atomodimensionales
+            print(f"  {conteo_D_n} A{n} se acoplan (N={self.N_acoplamiento}) para formar {conteo_D_n_plus_1} A{n_siguiente}.")
+            
+            # Asumimos que la Tensión se transfiere a los nuevos átomos
+            # (Se podría simular la "pérdida" o disipación)
+            tension_por_nuevo_atomo = (tension_actual / conteo_D_n_plus_1) if conteo_D_n_plus_1 > 0 else 0
+            
+            self.dimensiones[n_siguiente].add_atomos(
+                conteo_D_n_plus_1, 
+                tension_por_nuevo_atomo
+            )
+            
+            # Opcional: ¿Se "destruye" D(n) o solo se "reduce"?
+            # Por ahora, la vaciamos para representar la transformación.
+            dim_actual.atomos = []
+            
+            self.reportar_estado()
+        else:
+            print(f"  (Estable): Tensión insuficiente para la emergencia.")
+
+    def reportar_estado(self):
+        print("--- ESTADO DEL UNIVERSO (TDH) ---")
+        for n, dim in sorted(self.dimensiones.items()):
+            print(f"  D{n}: {dim.get_conteo()} A{n} | Tensión Total: {dim.get_tension_total():.2f}")
+        print("---------------------------------")
+# --- Simulación: El "Big Bang" y la Emergencia Jerárquica ---
+
+# 1. Creamos el Universo con las reglas:
+#    N=2 (Tu regla de potencia x^2)
+#    kappa=5000 (Umbral de Tensión base)
+universo = JerarquiaTDH(N_acoplamiento=2, kappa_base=5000)
+
+# 2. Inicia el universo. Creamos D0 (Vacío) con 12000 A0.
+#    Asumimos que D0 tiene una Tensión base (energía del vacío).
+universo.crear_dimension_inicial(n=0, cantidad_inicial=12000)
+
+# 3. Verificamos D0. 
+#    Tensión Total = 12000 * 1.0 = 12000
+#    Umbral Kappa(0) = 5000 * (0 + 1) = 5000
+#    Como 12000 > 5000, la emergencia DEBE ocurrir.
+universo.check_emergencia(0)
+
+# ---- Resultado Esperado (Simulación 1): ----
+# ¡EMERGENCIA DETECTADA! D0 --> D1
+# 12000 A0 se acoplan (N=2) para formar 6000 A1.
+# D1 ahora tiene 6000 A1 (Espacio-Tiempo).
+# D0 ahora está vacío.
+
+# 4. Verificamos D1.
+#    Tensión Total = 12000 (se transfirió)
+#    Umbral Kappa(1) = 5000 * (1 + 1) = 10000
+#    Como 12000 > 10000, la emergencia DEBE ocurrir de nuevo.
+universo.check_emergencia(1)
+
+# ---- Resultado Esperado (Simulación 2): ----
+# ¡EMERGENCIA DETECTADA! D1 --> D2
+# 6000 A1 se acoplan (N=2) para formar 3000 A2.
+# D2 ahora tiene 3000 A2 (Energía/Partículas).
+# D1 ahora está vacío.
+
+# 5. Verificamos D2.
+#    Tensión Total = 12000
+#    Umbral Kappa(2) = 5000 * (2 + 1) = 15000
+#    Como 12000 < 15000, la emergencia NO ocurre.
+universo.check_emergencia(2)
+
+# ---- Resultado Esperado (Simulación 3): ----
+# (Estable): Tensión insuficiente para la emergencia.
+# El universo se estabiliza en D2 (Dimensión de Partículas).
+
+print("\n\n=== SIMULACIÓN FINALIZADA ===")
+universo.reportar_estado()

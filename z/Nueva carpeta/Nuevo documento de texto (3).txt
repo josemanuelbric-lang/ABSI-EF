@@ -1,0 +1,34 @@
+#jose manuel Briceno Mendoza
+import random
+
+def knapsack_01(pesos, valores, capacidad):
+    n = len(valores)
+    dp = [[0 for _ in range(capacidad + 1)] for _ in range(n + 1)]
+
+    for i in range(1, n + 1):
+        for w in range(1, capacidad + 1):
+            if pesos[i-1] <= w:
+                dp[i][w] = max(dp[i-1][w], 
+                               valores[i-1] + dp[i-1][w - pesos[i-1]])
+            else:
+                dp[i][w] = dp[i-1][w]
+    return dp[n][capacidad]
+
+# --- Configuración de la lista Random ---
+random.seed(42) # Fijamos la semilla para obtener siempre los mismos "aleatorios"
+
+cantidadN = 10         # Número de objetos
+capacidad_maxima = 50  # Capacidad de la mochila
+
+# Generamos valores entre 10 y 100, y pesos entre 1 y 20
+valores_items = [random.randint(10, 100) for _ in range(cantidadN)]
+pesos_items = [random.randint(1, 20) for _ in range(cantidadN)]
+
+# Mostrar datos generados
+print(f"Pesos:   {pesos_items}")
+print(f"Valores: {valores_items}")
+print("-" * 30)
+
+# Ejecución
+resultado = knapsack_01(pesos_items, valores_items, capacidad_maxima)
+print(f"El valor máximo para N={cantidadN} y Capacidad={capacidad_maxima} es: {resultado}")

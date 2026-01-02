@@ -1,0 +1,82 @@
+import numpy as np
+import time
+import sys
+
+# Aumentamos el límite de recursión por si acaso (aunque la función es iterativa)
+# sys.setrecursionlimit(2000) 
+
+# --- Funciones (Mapeo S) ---
+
+def es_primo(n):
+    """Verifica si un número es primo."""
+    if n < 2:
+        return False
+    # Optimización: solo verificar divisores hasta la raíz cuadrada
+    for i in range(2, int(np.sqrt(n)) + 1):
+        if n % i == 0:
+            return False
+    return True
+
+def calcular_desviacion_delta(E_par):
+    """Implementa el mapeo S: Encuentra la mínima Desviación de Simetría (delta)."""
+    k = E_par // 2
+    delta = 0
+
+    # Límite de seguridad: si delta excede un límite grande (p.ej., 10000), 
+    # asumimos un fallo para evitar bucles infinitos en un contexto de prueba.
+    MAX_DELTA = k # Si delta alcanza k, p2 es 0, lo que ya es un fallo extremo.
+
+    while delta < MAX_DELTA:
+        p1 = k + delta
+        p2 = k - delta
+
+        if p2 <= 1:
+            # Esto NO debería pasar antes de que se encuentre el par si Goldbach es cierta
+            return -1 # Código de error para 'fallo estructural'
+
+        if es_primo(p1) and es_primo(p2):
+            # Éxito: Se encuentra la mínima desviación (convergencia)
+            return delta
+
+        delta += 1
+    
+    return -2 # Código de error para 'delta infinito/fuera de rango'
+
+# --- Prueba Estructural ---
+
+MAX_PAR = 100000
+pares_a_probar = [n for n in range(4, MAX_PAR + 2, 2)]
+errores_encontrados = 0
+max_delta_observado = 0
+
+print(f"🚀 Iniciando prueba TDH-TN de convergencia del mapeo S hasta E_par = {MAX_PAR}...")
+start_time = time.time()
+
+for E_par in pares_a_probar:
+    delta = calcular_desviacion_delta(E_par)
+    
+    if delta < 0:
+        print(f"\n🛑 ¡FALLO ESTRUCTURAL DE TDH-TN en E_par = {E_par}!")
+        print("Esto implica que Goldbach es falsa o que N no es cero.")
+        errores_encontrados += 1
+        break
+    
+    if delta > max_delta_observado:
+        max_delta_observado = delta
+
+end_time = time.time()
+
+# --- Conclusión Analítica ---
+print("-" * 50)
+print("✅ CONCLUSIÓN ANALÍTICA DE CONVERGENCIA ($\mathcal{S}$)")
+print(f"Rango de prueba: $E_{{par}} \in [4, {MAX_PAR}]$")
+print(f"Tiempo de ejecución: {end_time - start_time:.2f} segundos")
+print("-" * 50)
+
+if errores_encontrados == 0:
+    print(f"**Resultado:** No se encontraron fallos estructurales.")
+    print(f"El mapeo $\\mathcal{{S}}: E_{{par}} \\to \\min(\\delta)$ **convergío** para todos los números pares probados.")
+    print(f"**Max $\\delta$ Observado (Medida de Desviación Estructural):** {max_delta_observado}")
+    print("\nEsta simulación soporta la hipótesis TDH-TN de **Cuerpo Cerrado y Simétrico ($N=0$)** y la **finitud** del rango $\\delta$.")
+else:
+    print("\n**Resultado:** Falló la prueba de convergencia. La hipótesis TDH-TN es refutada en este rango.")

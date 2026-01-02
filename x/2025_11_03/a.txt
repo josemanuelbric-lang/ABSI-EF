@@ -1,0 +1,347 @@
+import tkinter as tk
+from tkinter import ttk, messagebox
+import pyautogui
+import pyperclip
+import pytesseract
+from PIL import Image, ImageDraw, ImageFont
+import threading
+import time
+import sys
+import os
+
+class OCRSelector:
+    def __init__(self, root):
+        self.root = root
+        self.root.title("OCR Selector")
+        self.root.geometry("350x250")
+        
+        # Variables para coordenadas
+        self.xpos = tk.StringVar(value="100")
+        self.ypos = tk.StringVar(value="100")
+        self.altura = tk.StringVar(value="200")
+        self.anchura = tk.StringVar(value="300")
+        
+        # Variables de control
+        self.selector_visible = False
+        self.selector_window = None
+        self.automatic_mode = False
+        self.running = True
+        
+        self.create_widgets()
+        self.setup_checks()
+        
+    def setup_checks(self):
+        """Verificar que todas las dependencias estén funcionando"""
+        try:
+            # Verificar pytesseract
+            try:
+                pytesseract.get_tesseract_version()
+                print("Tesseract encontrado")
+            except:
+                print("ERROR: Tesseract no encontrado")
+                messagebox.showerror("Error", "Tesseract no encontrado. Instálalo desde https://github.com/UB-Mannheim/tesseract/wiki")
+                return
+            
+            # Verificar pyautogui
+            test_screenshot = pyautogui.screenshot(region=(0, 0, 10, 10))
+            print("PyAutoGUI funcionando")
+            
+            # Verificar pyperclip
+            pyperclip.copy("test")
+            print("Pyperclip funcionando")
+            
+            self.status_label.config(text="Sistema listo")
+            
+        except Exception as e:
+            self.status_label.config(text=f"Error en dependencias: {str(e)}")
+            messagebox.showerror("Error", f"Error en dependencias: {str(e)}")
+    
+    def create_widgets(self):
+        # Frame principal
+        main_frame = ttk.Frame(self.root, padding="10")
+        main_frame.grid(row=0, column=0, sticky=(tk.W, tk.E, tk.N, tk.S))
+        
+        # Campos de coordenadas
+        ttk.Label(main_frame, text="X Pos:").grid(row=0, column=0, sticky=tk.W, pady=2)
+        ttk.Entry(main_frame, textvariable=self.xpos, width=10).grid(row=0, column=1, sticky=tk.W, pady=2)
+        
+        ttk.Label(main_frame, text="Y Pos:").grid(row=1, column=0, sticky=tk.W, pady=2)
+        ttk.Entry(main_frame, textvariable=self.ypos, width=10).grid(row=1, column=1, sticky=tk.W, pady=2)
+        
+        ttk.Label(main_frame, text="Anchura:").grid(row=2, column=0, sticky=tk.W, pady=2)
+        ttk.Entry(main_frame, textvariable=self.anchura, width=10).grid(row=2, column=1, sticky=tk.W, pady=2)
+        
+        ttk.Label(main_frame, text="Altura:").grid(row=3, column=0, sticky=tk.W, pady=2)
+        ttk.Entry(main_frame, textvariable=self.altura, width=10).grid(row=3, column=1, sticky=tk.W, pady=2)
+        
+        # Botones
+        button_frame = ttk.Frame(main_frame)
+        button_frame.grid(row=4, column=0, columnspan=2, pady=10)
+        
+        ttk.Button(button_frame, text="View", command=self.show_selector).grid(row=0, column=0, padx=5)
+        ttk.Button(button_frame, text="Hide", command=self.hide_selector).grid(row=0, column=1, padx=5)
+        ttk.Button(button_frame, text="Test Screenshot", command=self.test_screenshot).grid(row=0, column=2, padx=5)
+        
+        ttk.Button(button_frame, text="Auto OCR", command=self.toggle_auto_ocr).grid(row=1, column=0, padx=5, pady=5)
+        ttk.Button(button_frame, text="Manual OCR", command=self.manual_ocr).grid(row=1, column=1, padx=5, pady=5)
+        ttk.Button(button_frame, text="Test OCR", command=self.test_ocr).grid(row=1, column=2, padx=5, pady=5)
+        
+        # Estado
+        self.status_label = ttk.Label(main_frame, text="Inicializando...")
+        self.status_label.grid(row=5, column=0, columnspan=3, pady=5)
+        
+        # Modo auto indicator
+        self.auto_indicator = ttk.Label(main_frame, text="AUTO: OFF", foreground="red")
+        self.auto_indicator.grid(row=6, column=0, columnspan=3)
+        
+        # Bind Ctrl+Shift+C para OCR manual
+        self.root.bind('<Control-Shift-C>', lambda e: self.manual_ocr())
+        ttk.Label(main_frame, text="Atajo: Ctrl+Shift+C", font=('Arial', 8)).grid(row=7, column=0, columnspan=3)
+    
+    def test_screenshot(self):
+        """Probar si la captura de pantalla funciona"""
+        try:
+            x = int(self.xpos.get())
+            y = int(self.ypos.get())
+            width = int(self.anchura.get())
+            height = int(self.altura.get())
+            
+            screenshot = pyautogui.screenshot(region=(x, y, width, height))
+            # Solo probamos que se pueda capturar, no guardamos archivo
+            self.status_label.config(text=f"Screenshot OK: {width}x{height}")
+            print("Screenshot funcionando correctamente")
+            
+        except Exception as e:
+            self.status_label.config(text=f"Error screenshot: {str(e)}")
+            print(f"Error en screenshot: {e}")
+    
+    def test_ocr(self):
+        """Probar OCR con una imagen en memoria (sin guardar archivos)"""
+        try:
+            # Crear una imagen de prueba con texto en MEMORIA
+            img = Image.new('RGB', (300, 100), color='white')
+            d = ImageDraw.Draw(img)
+            
+            # Intentar usar una fuente básica
+            try:
+                font = ImageFont.truetype("arial.ttf", 20)
+            except:
+                font = ImageFont.load_default()
+            
+            d.text((10, 10), "Texto de prueba OCR 123", fill='black', font=font)
+            
+            # Procesar OCR directamente desde la imagen en memoria
+            text = pytesseract.image_to_string(img, lang='spa')
+            detected_text = text.strip()
+            print(f"Texto detectado en test: '{detected_text}'")
+            
+            if detected_text:
+                self.status_label.config(text=f"OCR funciona: {detected_text}")
+                pyperclip.copy(detected_text)
+            else:
+                self.status_label.config(text="OCR no detectó texto")
+                
+        except Exception as e:
+            self.status_label.config(text=f"Error OCR test: {str(e)}")
+            print(f"Error en test OCR: {e}")
+    
+    def show_selector(self):
+        try:
+            x = int(self.xpos.get())
+            y = int(self.ypos.get())
+            width = int(self.anchura.get())
+            height = int(self.altura.get())
+            
+            if width <= 0 or height <= 0:
+                messagebox.showerror("Error", "Anchura y altura deben ser mayores a 0")
+                return
+            
+            self.create_selector_window(x, y, width, height)
+            self.selector_visible = True
+            self.status_label.config(text="Selector visible")
+            
+        except ValueError:
+            messagebox.showerror("Error", "Por favor ingresa valores numéricos válidos")
+        except Exception as e:
+            self.status_label.config(text=f"Error show selector: {str(e)}")
+    
+    def hide_selector(self):
+        if self.selector_window:
+            self.selector_window.destroy()
+            self.selector_window = None
+            self.selector_visible = False
+            self.status_label.config(text="Selector oculto")
+    
+    def create_selector_window(self, x, y, width, height):
+        if self.selector_window:
+            self.selector_window.destroy()
+        
+        self.selector_window = tk.Toplevel(self.root)
+        self.selector_window.geometry(f"{width}x{height}+{x}+{y}")
+        self.selector_window.overrideredirect(True)
+        self.selector_window.attributes('-alpha', 0.3)
+        self.selector_window.attributes('-topmost', True)
+        
+        # Hacer la ventana semi-transparente con borde rojo
+        canvas = tk.Canvas(self.selector_window, bg='red', highlightthickness=0)
+        canvas.pack(fill=tk.BOTH, expand=True)
+        
+        # Etiqueta con dimensiones
+        label = tk.Label(self.selector_window, text=f"{width}x{height}", 
+                        bg='red', fg='white', font=('Arial', 10, 'bold'))
+        label.place(relx=0.5, rely=0.5, anchor=tk.CENTER)
+    
+    def capture_area(self):
+        try:
+            x = int(self.xpos.get())
+            y = int(self.ypos.get())
+            width = int(self.anchura.get())
+            height = int(self.altura.get())
+            
+            print(f"Capturando área: {x},{y} {width}x{height}")
+            
+            # Capturar screenshot del área especificada
+            screenshot = pyautogui.screenshot(region=(x, y, width, height))
+            
+            # NO guardar archivo - procesar directamente en memoria
+            print("Procesando OCR...")
+            text = pytesseract.image_to_string(screenshot, lang='spa')
+            
+            # Limpiar el texto
+            text = text.strip()
+            print(f"Texto detectado: '{text}'")
+            
+            if text:
+                pyperclip.copy(text)
+                return text
+            else:
+                return None
+                
+        except Exception as e:
+            print(f"Error en capture_area: {e}")
+            self.status_label.config(text=f"Error: {str(e)}")
+            return None
+    
+    def manual_ocr(self):
+        print("Ejecutando OCR manual...")
+        self.status_label.config(text="Procesando OCR...")
+        
+        def ocr_thread():
+            text = self.capture_area()
+            self.root.after(0, self.update_ocr_result, text)
+        
+        threading.Thread(target=ocr_thread, daemon=True).start()
+    
+    def update_ocr_result(self, text):
+        """Actualizar la UI con el resultado del OCR"""
+        if text:
+            self.status_label.config(text="Texto copiado al portapapeles!")
+            self.show_text_preview(text)
+        else:
+            self.status_label.config(text="No se detectó texto")
+    
+    def toggle_auto_ocr(self):
+        self.automatic_mode = not self.automatic_mode
+        
+        if self.automatic_mode:
+            self.status_label.config(text="Modo automático ACTIVADO")
+            self.auto_indicator.config(text="AUTO: ON", foreground="green")
+            self.start_auto_ocr()
+        else:
+            self.status_label.config(text="Modo automático DESACTIVADO")
+            self.auto_indicator.config(text="AUTO: OFF", foreground="red")
+    
+    def start_auto_ocr(self):
+        def auto_ocr_loop():
+            scan_count = 0
+            while self.automatic_mode and self.running:
+                try:
+                    if self.selector_visible:
+                        scan_count += 1
+                        print(f"Auto OCR scan #{scan_count}")
+                        
+                        text = self.capture_area()
+                        if text:
+                            # Actualizar UI en el hilo principal
+                            self.root.after(0, lambda: self.status_label.config(
+                                text=f"Auto OCR #{scan_count}: Texto copiado!"))
+                        
+                        time.sleep(2)  # Espera 2 segundos entre escaneos
+                    time.sleep(0.1)
+                except Exception as e:
+                    print(f"Error en auto_ocr_loop: {e}")
+                    time.sleep(1)
+        
+        threading.Thread(target=auto_ocr_loop, daemon=True).start()
+    
+    def show_text_preview(self, text):
+        preview_window = tk.Toplevel(self.root)
+        preview_window.title("Vista previa del texto")
+        preview_window.geometry("400x300")
+        
+        text_frame = ttk.Frame(preview_window, padding="10")
+        text_frame.pack(fill=tk.BOTH, expand=True)
+        
+        text_widget = tk.Text(text_frame, wrap=tk.WORD, width=50, height=15)
+        text_widget.insert(tk.END, text)
+        
+        scrollbar = ttk.Scrollbar(text_frame, orient=tk.VERTICAL, command=text_widget.yview)
+        text_widget.config(yscrollcommand=scrollbar.set)
+        
+        text_widget.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+        scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+        
+        button_frame = ttk.Frame(preview_window)
+        button_frame.pack(fill=tk.X, padx=10, pady=5)
+        
+        ttk.Button(button_frame, text="Cerrar", 
+                  command=preview_window.destroy).pack(side=tk.RIGHT)
+    
+    def on_closing(self):
+        self.running = False
+        self.automatic_mode = False
+        if self.selector_window:
+            self.selector_window.destroy()
+        self.root.destroy()
+
+def main():
+    print("Iniciando OCR Selector...")
+    print("Python version:", sys.version)
+    
+    # Verificar dependencias
+    try:
+        import pytesseract
+        import pyautogui
+        import pyperclip
+        from PIL import Image, ImageDraw, ImageFont
+        print("Todas las dependencias importadas correctamente")
+    except ImportError as e:
+        print(f"Error: Faltan dependencias - {e}")
+        print("Instala con: pip install pytesseract pyautogui pyperclip pillow")
+        return
+    
+    # Configurar ruta de tesseract si es necesario (WINDOWS)
+    try:
+        # Para Windows - ajusta esta ruta según tu instalación
+        if os.name == 'nt':
+            tesseract_paths = [
+                r'C:\Program Files\Tesseract-OCR\tesseract.exe',
+                r'C:\Users\*\AppData\Local\Programs\Tesseract-OCR\tesseract.exe'
+            ]
+            for path in tesseract_paths:
+                if os.path.exists(path):
+                    pytesseract.pytesseract.tesseract_cmd = path
+                    print(f"Tesseract encontrado en: {path}")
+                    break
+            else:
+                print("ADVERTENCIA: Tesseract no encontrado en rutas comunes")
+    except Exception as e:
+        print(f"Error configurando Tesseract: {e}")
+    
+    root = tk.Tk()
+    app = OCRSelector(root)
+    root.protocol("WM_DELETE_WINDOW", app.on_closing)
+    root.mainloop()
+
+if __name__ == "__main__":
+    main()

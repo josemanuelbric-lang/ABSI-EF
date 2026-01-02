@@ -1,0 +1,41 @@
+import numpy as np
+import matplotlib.pyplot as plt
+from sympy import sieve, li
+
+def evaluar_modelo_icf(n_max=100000, f_tuya_val=0.673648, f_ref_val=0.51, factor_corr=1.117337):
+    # 1. Obtención de datos reales
+    primos = np.array(list(sieve.primerange(1, n_max + 1)))
+    referencia_li = np.array([float(li(p)) for p in primos])
+    
+    # 2. Aplicación de la fórmula con las constantes a ajustar
+    # La vibración es el "pulso" de tu fórmula
+    vibracion = np.abs((1.5 * np.sin(primos * f_tuya_val)) - (1.2 * np.sin(primos * f_ref_val)))
+    area_calibrada = np.cumsum(vibracion) / factor_corr
+    
+    # 3. Cálculo de Errores
+    errores = area_calibrada - referencia_li
+    mse = np.mean(errores**2)  # Mean Squared Error
+    mae = np.mean(np.abs(errores)) # Mean Absolute Error (más intuitivo)
+    
+    # 4. Visualización técnica
+    plt.figure(figsize=(12, 6))
+    plt.style.use('dark_background')
+    
+    # Graficamos el error residual
+    plt.plot(primos, errores, color='#00ffcc', lw=1, label=f'Residuos (MSE: {mse:.2e})')
+    plt.axhline(0, color='red', linestyle='--', alpha=0.6)
+    
+    plt.title("Análisis de Residuos y Precisión del Modelo ICF")
+    plt.xlabel("Números Primos ($p$)")
+    plt.ylabel("Diferencia ($Modelo - Li(p)$)")
+    plt.legend()
+    plt.grid(True, alpha=0.1)
+    plt.show()
+    
+    print(f"--- Métricas de Precisión ---")
+    print(f"MSE (Error Cuadrático Medio): {mse:.4f}")
+    print(f"MAE (Error Medio Absoluto): {mae:.4f}")
+    print(f"Error Máximo: {np.max(np.abs(errores)):.4f}")
+
+# Ejecución del ajuste
+evaluar_modelo_icf()

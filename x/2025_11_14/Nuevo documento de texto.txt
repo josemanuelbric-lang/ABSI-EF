@@ -1,0 +1,52 @@
+import numpy as np
+import matplotlib.pyplot as plt
+
+# --- Parámetros de la simulación ---
+# Constante de Tensión (masa de la partícula)
+m = 1.0 
+# Límite Máximo de Integración/Suma (Máx. energía/impulso)
+K_max = 500  
+
+# Escala de Atomodimensionales (k/A_n)
+k_values = np.linspace(1, K_max, K_max) 
+
+# Función a evaluar (análoga al integrando de TQC/TDH)
+def integrando_f(k, m):
+    # k / (k^2 + m^2) (Similar a una divergencia logarítmica)
+    return k / (k**2 + m**2)
+
+# --- Cálculo de la TQC (Integral Continua) ---
+# La integral es la acumulación continua (Área bajo la curva)
+integral_tqc = np.cumsum(integrando_f(k_values, m)) * (k_values[1] - k_values[0])
+
+# --- Cálculo de la TDH (Suma Discreta y Finito) ---
+# La suma es la acumulación discreta (Suma de los A_n)
+suma_tdh = np.cumsum(integrando_f(k_values, m)) 
+
+# El resultado de TDH es el valor final de la suma, que es finito:
+Resultado_TDH = suma_tdh[-1] 
+
+# --- Gráfica ---
+plt.figure(figsize=(10, 6))
+
+# Simular el crecimiento de la TQC si no tuviéramos un límite
+# Usamos una escala logarítmica para ilustrar la divergencia
+k_divergence = np.linspace(1, K_max * 5, 500)
+divergence_trend = np.log(k_divergence + 1) * 20 
+
+# Gráfica de la TQC Divergente
+plt.plot(k_divergence, divergence_trend, label=r'TQC: Tendencia a la $\Lambda \to \infty$ (Divergencia)', color='red', linestyle='--')
+
+# Gráfica de la TDH Cuantificada (Suma Convergente)
+plt.plot(k_values, suma_tdh, label=r'TDH: Suma discreta hasta $K=|\mathbf{D_3}|$', color='blue', linewidth=3)
+plt.scatter(K_max, Resultado_TDH, color='blue', s=100, zorder=5, label=f'Resultado TDH Final ({Resultado_TDH:.2f})')
+
+
+plt.title('TDH vs. TQC: Solución a la Divergencia mediante Finitud')
+plt.xlabel(r'Nivel de Cuantificación ($k / |\mathbf{A_n}|$)')
+plt.ylabel('Valor Calculado (Tensión Acumulada)')
+plt.legend()
+plt.grid(True, linestyle=':', alpha=0.6)
+plt.show()
+
+print(f"\nResultado TDH (Tensión Cuantificada en K={K_max}): {Resultado_TDH:.2f}")

@@ -1,0 +1,51 @@
+import numpy as np
+import matplotlib.pyplot as plt
+from collections import Counter
+
+def calcular_entropia(secuencia):
+    """Calcula la entropía de Shannon de una secuencia de paridad."""
+    counts = Counter(secuencia)
+    total = len(secuencia)
+    probabilidades = [count / total for count in counts.values()]
+    return -sum(p * np.log2(p) for p in probabilidades if p > 0)
+
+def analizar_entropia_collatz(limite_x, pasos):
+    # Serie A' (3k-1)
+    serie_a_prima = [n for n in range(1, limite_x + 1) if (n + 1) % 3 == 0]
+    entropias = []
+
+    for n in serie_a_prima:
+        secuencia_paridad = []
+        temp = n
+        for _ in range(pasos):
+            if temp == 1: break
+            
+            if temp % 2 == 0:
+                secuencia_paridad.append('R')
+                temp //= 2
+            else:
+                secuencia_paridad.append('L')
+                temp = 3 * temp + 1
+        
+        if len(secuencia_paridad) > 10: # Solo secuencias con datos suficientes
+            entropias.append(calcular_entropia(secuencia_paridad))
+            
+    return entropias
+
+# --- Ejecución ---
+pasos_sim = 500
+limite_n = 5000
+data_entropia = analizar_entropia_collatz(limite_n, pasos_sim)
+
+# --- Visualización ---
+plt.figure(figsize=(10, 5))
+plt.hist(data_entropia, bins=30, color='purple', alpha=0.7, edgecolor='black')
+plt.axvline(np.mean(data_entropia), color='red', linestyle='dashed', linewidth=2, label=f'Media: {np.mean(data_entropia):.4f}')
+plt.title("Distribución de la Entropía de Paridad (Serie A')")
+plt.xlabel("Entropía (bits)")
+plt.ylabel("Frecuencia de Números")
+plt.legend()
+plt.grid(alpha=0.3)
+plt.show()
+
+print(f"Entropía promedio de la serie: {np.mean(data_entropia):.4f} bits")

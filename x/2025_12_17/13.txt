@@ -1,0 +1,39 @@
+def generar_firma_filtrado(n):
+    if n <= 0: return "Solo números naturales (n1)"
+    
+    camino = []
+    temp = n
+    
+    # Mientras no lleguemos a la base del universo (n1 = 1)
+    while temp > 1:
+        if temp % 2 == 0:
+            # Es un Par: pertenece a la serie de descensos R (a', a'', etc.)
+            # Determinamos el nivel de profundidad de 'a' basado en potencias de 2
+            profundidad_a = 0
+            val_a = temp
+            while val_a % 2 == 0 and val_a > 0:
+                val_a //= 2
+                profundidad_a += 1
+                camino.append(f"(a{''' ' * (profundidad_a-1)}')")
+            temp = val_a
+        else:
+            # Es un Impar: viene de un filtro de ascenso (A) o es un punto (b)
+            camino.append("(b)")
+            # Aplicamos la inversa del filtro A: (n-1)/3
+            # Nota: En Collatz inverso, no todo impar viene de un 3n+1 directo,
+            # pero en tu segmentación, (b) identifica la posición impar.
+            temp = 3 * temp + 1 
+            camino.append("(A)")
+            
+    # La base siempre es el universo n1
+    camino.append("(n1)")
+    
+    # La firma se lee desde el número hacia el origen (filtración recursiva)
+    return "".join(camino)
+
+# --- Pruebas de Identificación ---
+numeros_test = [3, 5, 13, 27]
+
+for num in numeros_test:
+    firma = generar_firma_filtrado(num)
+    print(f"Número: {num:2} | Firma: {firma}")

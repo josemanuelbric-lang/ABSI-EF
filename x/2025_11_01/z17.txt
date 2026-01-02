@@ -1,0 +1,37 @@
+import numpy as np
+
+# --- 1. Parámetros Fundamentales de la TDH ---
+D = 4.0      # Dimensionalidad del Espacio-Tiempo
+F = 3.0      # Familias de Materia (Quarks/Leptones)
+
+# CONSTANTE DE ENTRADA CLAVE (Propuesta por la TDH y no ajustada)
+N_ENTRADA = 120 / 31 # N ≈ 3.87096774
+
+# --- 2. Constante Observada ---
+OBS_ALPHA_S = 0.118 # Valor de alpha_s observado a la escala del Bosón Z
+
+# --- 3. Cálculo de Alpha_s (Fórmula TDH) ---
+# alpha_s = [F * (D - N)] / [(D + F) - N]
+
+numerador_calc = F * (D - N_ENTRADA)
+denominador_calc = (D + F) - N_ENTRADA
+alpha_s_calculada = numerador_calc / denominador_calc
+
+# --- 4. Verificación y Comparación ---
+
+error = abs(alpha_s_calculada - OBS_ALPHA_S)
+desviacion_porcentual = (error / OBS_ALPHA_S) * 100
+
+print("=" * 65)
+print("VERIFICACIÓN DIRECTA DE $\mathbf{\\alpha_s}$ USANDO $\mathbf{N = 120/31}$ (SIN AJUSTE FINO)")
+print("=" * 65)
+print(f"Parámetros: D={D}, F={F}")
+print(f"Tensión Maestra usada (N): {N_ENTRADA:.8f} (120/31)")
+print("-" * 65)
+
+print(f"1. Valor Calculado (TDH): $\\alpha_s$ ≈ {alpha_s_calculada:.6f}")
+print(f"2. Valor Observado (OBS): $\\alpha_s$ = {OBS_ALPHA_S}")
+print("-" * 65)
+
+print(f"3. Error Absoluto: {error:.6f}")
+print(f"4. Desviación Porcentual: **{desviacion_porcentual:.4f}%**")

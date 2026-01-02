@@ -1,0 +1,39 @@
+import numpy as np
+
+# --- A. Definición de la Fuente de Gravedad (Masa) ---
+# Atomidimensional: 3 Real, 4 Ortogonal (Unidades Dimensionales)
+atomodimensional = np.array([3.0, 4.0], dtype=complex)
+# CORRECCIÓN: Se usa 'atomodimensional' en lugar de 'atomimensional'
+E_materia_emergente = np.vdot(atomodimensional, atomodimensional).real
+T_fuente_gravedad = E_materia_emergente  # T = 25.0
+
+print("### A. Emergencia de la Fuente de Gravedad (T) ###")
+print(f"Energía Emergente (Fuente T) = {T_fuente_gravedad:.2f} unidades de Existencia")
+# 
+# --- B. Simulación de la Tensión Dimensional (Curvatura G) ---
+hbar_udt = 1.0  # Unidad de Inconmensurabilidad
+
+# 1. Inconmensurabilidad Lejana (Espacio Plano)
+Delta_X_Lejano = 10.0  # Gran incertidumbre de Posición (poco concentrado)
+Delta_P_Lejano = hbar_udt / (2 * Delta_X_Lejano)
+
+print("\n### B. Tensión Dimensional (Curvatura G) ###")
+print(f"1. Inconmensurabilidad Lejana (Espacio Plano):")
+print(f"    Delta_X (Posición) = {Delta_X_Lejano:.2f}")
+print(f"    Delta_P (Momento)  = {Delta_P_Lejano:.2f}")
+
+# 2. Inconmensurabilidad Cerca de la Masa (Espacio Curvo)
+# La Tensión Dimensional G es inversamente proporcional a la distancia del Atomimensional.
+# Definimos el factor de compresión (f_c) basado en la Energía Emergente (T):
+# f_c = T / (T + 5) -> Si T es grande, f_c se acerca a 1 (máxima compresión).
+f_c = T_fuente_gravedad / (T_fuente_gravedad + 25.0)  # T=25, f_c = 25/50 = 0.5
+                                                     # Máxima compresión: 50% de reducción
+                                                     
+Delta_X_Cercano = Delta_X_Lejano * (1 - f_c)  # La posición incierta se comprime
+Delta_P_Cercano = hbar_udt / (2 * Delta_X_Cercano) # El Momento incierto aumenta para compensar
+
+print(f"\n2. Inconmensurabilidad Cercana (Espacio Curvo - Tensión G):")
+print(f"    Factor de Compresión (f_c): {f_c:.2f} (50% de la incertidumbre original)")
+print(f"    La Tensión Dimensional comprime: Delta_X = {Delta_X_Cercano:.2f}")
+print(f"    El Momento forzado aumenta: Delta_P = {Delta_P_Cercano:.2f}")
+print(f"    Producto (Inconmensurabilidad): {Delta_X_Cercano * Delta_P_Cercano:.2f} (Constante)")

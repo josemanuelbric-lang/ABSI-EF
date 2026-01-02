@@ -1,0 +1,45 @@
+import matplotlib.pyplot as plt
+import numpy as np
+import math
+import random
+
+def obtener_trayectoria_potencial(n):
+    temp = n
+    potenciales = []
+    l_count = 0
+    r_count = 0
+    
+    while temp > 1:
+        if temp % 2 == 0:
+            r_count += 1
+            temp //= 2
+        else:
+            l_count += 1
+            temp = 3 * temp + 1
+        # Calculamos el potencial en cada paso del filtrado
+        psi = l_count * math.log2(3) - r_count
+        potenciales.append(psi)
+    return potenciales
+
+# 1. Número pequeño
+n_small = 27
+traj_small = obtener_trayectoria_potencial(n_small)
+
+# 2. Número masivo (100 dígitos aprox)
+n_huge = random.randint(10**99, 10**100)
+traj_huge = obtener_trayectoria_potencial(n_huge)
+
+# --- Normalización y Graficación ---
+plt.figure(figsize=(12, 6))
+
+# Normalizamos el eje X de 0 a 100% del camino para comparar formas
+plt.plot(np.linspace(0, 100, len(traj_small)), traj_small, label=f"N={n_small} (Pequeño)", color='blue', alpha=0.8)
+plt.plot(np.linspace(0, 100, len(traj_huge)), traj_huge, label="N Gigante (100 dígitos)", color='orange', alpha=0.6)
+
+plt.axhline(y=0, color='red', linestyle='--', label="Barrera de Estabilidad")
+plt.title("Comparación de Potencial Ψ: Invariancia de Escala en el Embudo de Collatz")
+plt.xlabel("Progreso de la Filtración (%)")
+plt.ylabel("Potencial Acumulado (Ψ)")
+plt.legend()
+plt.grid(alpha=0.3)
+plt.show()

@@ -1,0 +1,41 @@
+
+NLRLRLRRL                        (>40N162*)	pp
+NLRLRLRRLR                       (>20N81*) newD = d/2, newP = p/2
+
+NLRLRLRRR                        (>20N27#)	pi
+NLRLRLRRRL                       (>142N162#) newD =(d*3)+(p*3)+1, newP=(p*3)*2
+NLRLRLRRRR                       (>10N27#) newD = d/2, newP = p
+
+NLRLRRRLR                        (>17N27#) ii	44 98 152 206
+NLRLRRRLRL                       (>52N162#) newD=d*3+1, newP=(p*3)*2
+NLRLRRRLRR                       (>22N27#) newD=(d+p)/2, newP = p
+
+NLRRLRRRR                        (>7N9*)	
+NLRRLRRRRL                       (>22N54*)
+NLRRLRRRRR                       (>8N9#) 
+
+NLRLRLRLRL                       (>484N486*)
+NLRLRLRLRR                       (>40N81*)
+NLRLRRLRLR                       (>71N81*)
+NLRLRRRRLR                       (>2N27#)
+NLRLRRRRRL                       (>16N54#)
+NLRLRRRRRR                       (>7N9#)
+NLRRLRLRLR                       (>26N81*)
+NLRRLRLRRL                       (>148N162*)
+NLRRLRLRRR                       (>11N27*)
+NLRRLRRLRL                       (>88N162*)
+NLRRLRRLRR                       (>1N27*)
+NLRRLRRRLR                       (>8N27*)
+NLRRRLRLRL                       (>160N162#)
+NLRRRLRLRR                       (>13N27#)
+NLRRRLRRLR                       (>20N27#)
+NLRRRLRRRL                       (>34N54#)
+NLRRRLRRRR                       (>1N9#)
+NLRRRRLRLR                       (>17N27#)
+NLRRRRLRRL                       (>4N54#)
+NLRRRRLRRR                       (>5N9#)
+NLRRRRRLRL                       (>52N54#)
+NLRRRRRLRR                       (>4N9#)
+NLRRRRRRLR                       (>2N9#)
+NLRRRRRRRL                       (>16N18#)
+NLRRRRRRRR                       (>1N3#)

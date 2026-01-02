@@ -1,0 +1,28 @@
+import numpy as np
+
+# --- Constantes Medibles (CODATA) ---
+M_e_GeV = 0.51099895e-3      # Masa del Electrón (GeV)
+M_Planck_GeV = 1.22091e19    # Masa de Planck (GeV)
+alpha_inv = 137.035999084    # 1/Alpha
+alpha = 1 / alpha_inv
+
+# --- Relación de Referencia de Acoplamiento (Esperada en la Física Teórica) ---
+# Se prueba si M_e es una función de M_Planck y alpha^2 (M_e ~ alpha^2 * M_P)
+# La fórmula es: M_e / M_Planck = Factor * alpha^2
+
+Factor_Calculado = (M_e_GeV / M_Planck_GeV) / (alpha ** 2)
+
+# --- Postulado TDH (Prueba del Puente) ---
+# El electrón (N=1) es el puente, por lo que el Factor_Calculado debe ser una constante simple,
+# idealmente cerca de 1.0 o pi.
+Factor_Objetivo = 1.0
+
+Error_Absoluto = np.abs(Factor_Calculado - Factor_Objetivo)
+Error_Porcentual = (Error_Absoluto / Factor_Calculado) * 100
+
+print("\n--- ⚖️ Test: Electrón como Intersección (D2 ∩ D3) ---")
+print(f"| Ratio M_e / M_Planck: {M_e_GeV / M_Planck_GeV:.4e}")
+print(f"| Alpha al cuadrado (α²): {alpha ** 2:.4e}")
+print("-" * 50)
+print(f"| Factor de Coherencia TDH (M_e / (M_P * α²)): {Factor_Calculado:.5f}")
+print("-" * 50)

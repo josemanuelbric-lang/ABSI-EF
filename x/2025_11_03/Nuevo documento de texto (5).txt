@@ -1,0 +1,117 @@
+def prueba_identidad_1(E_par):
+    """
+    Verifica: Σ(k_i) = Σ(2^xi / 2)
+    """
+    
+    # E_par = 44 (101100_2) -> Componentes binarias: 32, 8, 4
+    if E_par <= 0 or E_par % 2 != 0:
+        return "Error: Ingrese un número par positivo."
+    
+    dimensiones_binarias = [2**i for i in range(E_par.bit_length()) if (E_par >> i) & 1]
+    
+    # Lado Izquierdo (Σ k_i): Se asume k_i = dim / 2
+    suma_k_i = sum(dim / 2 for dim in dimensiones_binarias)
+    
+    # Lado Derecho (Σ 2^xi / 2): El cálculo es idéntico por definición.
+    suma_2xi_medios = sum(dimensiones_binarias) / 2
+    
+    print("--- Identidad 1 ---")
+    print(f"E_par: {E_par}")
+    print(f"Componentes: {dimensiones_binarias}")
+    print(f"Σ k_i: {suma_k_i}")
+    print(f"Σ (2^xi / 2): {suma_2xi_medios}")
+    
+    if suma_k_i == suma_2xi_medios:
+        print("✅ **VERDADERO**: La identidad se cumple por definición algebraica.")
+    else:
+        print("❌ FALSO: ¡Hay un error de cálculo!")
+
+# Ejecutar con E_par = 44
+prueba_identidad_1(44) 
+# (32+8+4)/2 = 22. (32/2 + 8/2 + 4/2) = 16 + 4 + 2 = 22.
+
+def prueba_identidad_2(E_par):
+    """
+    Verifica: Σ(2^xi / 2) = (1/2) * Σ(2^xi)
+    """
+    if E_par <= 0 or E_par % 2 != 0:
+        return "Error: Ingrese un número par positivo."
+        
+    dimensiones_binarias = [2**i for i in range(E_par.bit_length()) if (E_par >> i) & 1]
+
+    # Lado Izquierdo (Σ 2^xi / 2)
+    lado_izquierdo = sum(dim / 2 for dim in dimensiones_binarias)
+    
+    # Lado Derecho (1/2 * Σ 2^xi)
+    lado_derecho = sum(dimensiones_binarias) / 2
+    
+    print("\n--- Identidad 2 ---")
+    print(f"E_par: {E_par}")
+    print(f"Lado Izquierdo (Σ 2^xi / 2): {lado_izquierdo}")
+    print(f"Lado Derecho (1/2 * Σ 2^xi): {lado_derecho}")
+    
+    if lado_izquierdo == lado_derecho:
+        print("✅ **VERDADERO**: La identidad se cumple por la propiedad distributiva.")
+    else:
+        print("❌ FALSO: ¡Hay un error de cálculo!")
+
+# Ejecutar con E_par = 10 (8 + 2)
+prueba_identidad_2(10) 
+# Lado Izq: 8/2 + 2/2 = 5. Lado Der: (8+2)/2 = 5.
+
+
+def prueba_identidad_3(E_par):
+    """
+    Verifica: (1/2) * Σ(2^xi) = E_par / 2
+    """
+    if E_par <= 0 or E_par % 2 != 0:
+        return "Error: Ingrese un número par positivo."
+
+    dimensiones_binarias = [2**i for i in range(E_par.bit_length()) if (E_par >> i) & 1]
+
+    # Lado Izquierdo (1/2 * Σ 2^xi)
+    lado_izquierdo = sum(dimensiones_binarias) / 2
+    
+    # Lado Derecho (E_par / 2)
+    lado_derecho = E_par / 2
+    
+    print("\n--- Identidad 3 ---")
+    print(f"E_par: {E_par}")
+    print(f"Lado Izquierdo ((1/2) * Σ 2^xi): {lado_izquierdo}")
+    print(f"Lado Derecho (E_par / 2): {lado_derecho}")
+    
+    if lado_izquierdo == lado_derecho:
+        print("✅ **VERDADERO**: La identidad se cumple por la definición de la representación binaria.")
+    else:
+        print("❌ FALSO: ¡Hay un error de cálculo!")
+
+# Ejecutar con E_par = 50 (32 + 16 + 2)
+prueba_identidad_3(50) 
+# Lado Izq: (32+16+2)/2 = 25. Lado Der: 50/2 = 25.
+
+def prueba_identidad_4(E_par):
+    """
+    Verifica: E_par / 2 = k_total
+    """
+    if E_par <= 0 or E_par % 2 != 0:
+        return "Error: Ingrese un número par positivo."
+        
+    # Lado Izquierdo (E_par / 2)
+    lado_izquierdo = E_par / 2
+    
+    # Lado Derecho (k_total)
+    k_total = E_par // 2 # Usamos división entera para ser puristas con el concepto de 'centro'
+    
+    print("\n--- Identidad 4 ---")
+    print(f"E_par: {E_par}")
+    print(f"E_par / 2: {lado_izquierdo}")
+    print(f"k_total (Centro de Simetría): {k_total}")
+    
+    if lado_izquierdo == k_total:
+        print("✅ **VERDADERO**: La identidad se cumple por la definición de k_total.")
+    else:
+        print("❌ FALSO: ¡Hay un error de cálculo!")
+
+# Ejecutar con E_par = 78
+prueba_identidad_4(78) 
+# Lado Izq: 78/2 = 39. Lado Der: 39.

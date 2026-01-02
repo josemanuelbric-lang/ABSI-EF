@@ -1,0 +1,45 @@
+import math
+
+# Parámetros Fundamentales de la TDH
+D = 4.0      # Dimensionalidad
+F = 3.0      # Familias de Materia
+N = 3.8710   # Tensión Maestra (de la observación cosmológica z)
+
+# Constante Observada
+OBS_ALPHA_S = 0.118 # Valor de alpha_s a la escala del Bosón Z
+
+# --- LEY ESTRUCTURAL: FUERZA NUCLEAR FUERTE (Alpha_s) ---
+# Formula: [F * (D - N)] / [(D + F) - N]
+def calculate_alpha_s(D, F, N):
+    # 1. Cuantificación de la Brecha de Masa (Numerador)
+    # Tensión Residual (D - N) multiplicada por las Familias (F)
+    brecha_masa_quantified = F * (D - N) 
+    
+    # 2. Escala Dimensional Neta (Denominador)
+    # Volumen estructural (D + F) atenuado por la Tensión (N)
+    escala_dimensional_neta = (D + F) - N 
+    
+    TDH_alpha_s = brecha_masa_quantified / escala_dimensional_neta
+    return TDH_alpha_s, brecha_masa_quantified
+
+# --- Cálculo y Verificación ---
+
+TDH_alpha_s, brecha_masa_quantified = calculate_alpha_s(D, F, N)
+
+print("--- Verificación de la Brecha de Masa (Yang-Mills) ---")
+print(f"Parámetros: D={D}, F={F}, N={N}")
+print("--------------------------------------------------")
+
+# Resultado de la Brecha de Masa
+print(f"1. Tensión Residual Bruta (Brecha de Masa Cuantificada):")
+print(f"   Brecha Estructural (F * (D - N)): {brecha_masa_quantified:.4f}")
+print(f"   *Esta es la magnitud de energía mínima que la TDH postula que existe (Mass Gap).")
+print("-" * 50)
+
+# Resultado Alpha_s
+print(f"2. Constante de Acoplamiento (Intensidad de la Brecha):")
+print(f"   TDH Cálculo (alpha_s): {TDH_alpha_s:.4f}")
+print(f"   Valor Observado:       {OBS_ALPHA_S:.4f}")
+error_alpha_s = abs(TDH_alpha_s - OBS_ALPHA_S) / OBS_ALPHA_S * 100
+print(f"   Error: {error_alpha_s:.2f}%")
+print("-" * 50)

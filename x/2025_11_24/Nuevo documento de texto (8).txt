@@ -1,0 +1,42 @@
+import numpy as np
+from scipy.linalg import eigvalsh
+
+# --- Datos Físicos de Referencia (Constantes) ---
+hbar = 1.05457e-34
+G = 6.6743e-11
+c = 2.9979e8
+
+# --- 1. Matriz de Densidad Reducida (Rho_A) ---
+# En el Horizonte, el entrelazamiento es máximo (1 bit), 
+# por lo que Rho_A es la mezcla máxima.
+rho_A = np.array([[0.5, 0.0], 
+                  [0.0, 0.5]], dtype=complex) 
+
+# --- 2. Entropía Dimensional (S_ent) ---
+eigenvalores_A = eigvalsh(rho_A)
+log2_eigen = np.ma.log2(eigenvalores_A).filled(0) 
+entropia_entrelazamiento = -np.sum(eigenvalores_A * log2_eigen)
+
+# --- 3. La Novedad UDT: Derivando la Temperatura (Analogía) ---
+# La temperatura T_H emerge de la Tensión (G) y la Inconmensurabilidad (hbar)
+# La Temperatura es la energía promedio del Atomimensional en el estado de máxima Entropía.
+# Usamos una analogía con la energía del agujero negro: E = M * c^2
+
+# Si el sistema es una mezcla perfecta (rho_A), la única Energía que puede emitir es Térmica.
+# La T_H es el límite donde la Energía de Planck (E_P) se reparte sobre la Entropía.
+k_B = 1.380649e-23  # Constante de Boltzmann
+
+# La energía asociada a la entropía (T*S) debe ser proporcional a la energía de Planck.
+# T_H ~ E_P / (S_ent * k_B)
+E_P = np.sqrt((hbar * c**5) / G) # 1.956e9 Julios
+
+T_H_Analogia = E_P / (entropia_entrelazamiento * k_B) 
+# Este cálculo es solo analógico, pero demuestra que la Entropía de 1 bit controla el límite.
+
+print("\n### Prueba UDT: Entrelazamiento y la Termodinámica del Agujero Negro ###")
+print(f"1. Entropía Dimensional en el Horizonte (S(Rho_A)): {entropia_entrelazamiento:.4f} bits")
+print(f"2. Energía de Planck (Límite UDT): {E_P:.2e} Julios")
+print("-" * 50)
+print("Interpretación de la Novedad:")
+print(f"La MÁXIMA AMBIGÜEDAD (1 bit de Entropía) es lo que define el Horizonte.")
+print(f"La Temperatura del Agujero Negro surge cuando la Energía de Planck (E_P) se intenta repartir en el estado de Máxima Entropía (S=1).")

@@ -1,0 +1,41 @@
+import matplotlib.pyplot as plt
+import numpy as np
+
+E_par = 30
+k_total = E_par / 2
+primos = [2, 3, 5, 7, 11, 13, 17, 19, 23, 29]
+
+# --- Graficando la Simetría y el Equilibrio ---
+fig, ax = plt.subplots(figsize=(10, 4))
+
+# 1. Eje Numérico
+ax.axhline(0, color='gray', linewidth=0.5)
+ax.set_yticks([])
+ax.set_xlim(0, E_par)
+ax.set_xticks(np.arange(0, E_par + 1, 5))
+
+# 2. La Alpha del Par (Pivote Central, garantizado por TDH_A)
+ax.axvline(k_total, color='purple', linestyle='--', linewidth=2, label=f'Alpha del Par ($k_{{total}}$={k_total})')
+ax.text(k_total, 0.1, r'$k_{\text{total}}$', color='purple', fontsize=12, ha='center')
+
+# 3. Los Primos de Goldbach (Equilibrio TDH_S)
+p1 = 17
+p2 = 13
+delta = p1 - k_total
+
+# Mostrar el par de primos (TDH_S)
+ax.plot([p2, p1], [0, 0], marker='o', color='green', markersize=8, linestyle='', label=f'Equilibrio Primo ({p2}+{p1})')
+ax.hlines(0.05, p2, p1, color='green', linestyle='-', linewidth=1)
+ax.text(p1, 0.1, r'$p_1$', color='green', fontsize=12, ha='center')
+ax.text(p2, 0.1, r'$p_2$', color='green', fontsize=12, ha='center')
+
+# Mostrar la Delta (Distancia Simétrica)
+ax.annotate(r'$\delta$', xy=((k_total + p1) / 2, -0.05), xytext=((k_total + p1) / 2, -0.15),
+            arrowprops=dict(facecolor='blue', shrink=0.05, width=0.5), color='blue', fontsize=10)
+ax.annotate(r'$\delta$', xy=((k_total + p2) / 2, -0.05), xytext=((k_total + p2) / 2, -0.15),
+            arrowprops=dict(facecolor='blue', shrink=0.05, width=0.5), color='blue', fontsize=10)
+
+
+ax.set_title(f"Visualización TDH-TN para $E_{{\\text{{par}}}}=30$")
+ax.legend()
+plt.show()

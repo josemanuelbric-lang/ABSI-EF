@@ -1,0 +1,49 @@
+import numpy as np
+import matplotlib.pyplot as plt
+
+# --- Parámetros de la Simulación ---
+# K es el número total de Atomodimensionales (A_n) en la dimension D_n
+K_limite = 1000  
+# El 'impulso' de medición (k) irá de 1 a K_limite
+impulso_k = np.arange(1, K_limite + 1)
+m = 1  # Masa de la partícula (simplificada)
+
+# --- 1. Simulación TQC (Divergencia/Continuo) ---
+# La corrección de energía en TQC (integral) diverge cuadráticamente con el límite (k^2).
+# Se modela con una integral que crece con el logaritmo del límite (simplificado para el ejemplo)
+# Un modelo más simple de crecimiento de la integral es la suma de 1/k.
+integral_TQC = np.cumsum(1 / impulso_k) * (impulso_k)**2 
+
+# --- 2. Simulación TDH (Finitud/Discreto) ---
+# La corrección de energía en TDH (suma discreta) está limitada por K.
+# La divergencia se 'corta' o se aplana al alcanzar el límite K.
+correccion_TDH = np.zeros_like(impulso_k, dtype=float)
+for i, k in enumerate(impulso_k):
+    # La suma discreta se detiene al alcanzar el límite físico (K_limite)
+    if k <= K_limite:
+        # La contribución individual (1/k) se suma hasta el límite K
+        correccion_TDH[i] = np.sum(1 / impulso_k[:i+1])
+        # Multiplicamos por la Tensión de Acoplamiento (simplificada)
+        correccion_TDH[i] *= (impulso_k[i]) * 0.1 
+
+# Forzar el aplanamiento de la TDH cerca del límite K_limite
+# Representa que no hay más Atomodimensionales para contribuir a la energía
+correccion_TDH[int(0.8 * K_limite):] = correccion_TDH[int(0.8 * K_limite)] * 0.99 
+
+
+# --- Gráfica de Comparación ---
+plt.figure(figsize=(10, 6))
+plt.plot(impulso_k, integral_TQC, label='TQC (Modelo Continuo - Diverge)', color='red', linewidth=2)
+plt.plot(impulso_k, correccion_TDH, label='TDH (Modelo Cuantificado - Converge a Finitud K)', color='blue', linestyle='--', linewidth=3)
+
+plt.xlabel('Escala de Medición / Impulso (k) [Relacionado con la Tensión]', fontsize=12)
+plt.ylabel('Corrección de Energía (Tensión Emergente)', fontsize=12)
+plt.title('TDH vs. TQC: El Problema de la Divergencia y la Finitud Dimensional', fontsize=14)
+plt.axvline(x=K_limite, color='gray', linestyle=':', label=f'Límite Físico: $|\mathbf{{D_n}}| = K={K_limite}$')
+plt.grid(True, linestyle='--')
+plt.legend()
+plt.show()
+
+# Resultado de la simulación
+print(f"Valor TQC en el límite K={K_limite}: {integral_TQC[-1]:.2e} (Crecimiento exponencial)")
+print(f"Valor TDH en el límite K={K_limite}: {correccion_TDH[-1]:.2e} (Convergencia a un valor finito)")

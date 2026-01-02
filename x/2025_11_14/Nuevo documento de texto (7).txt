@@ -1,0 +1,14 @@
+import numpy as np
+
+# --- Constantes TDH y Universales ---
+C = 24.8327                     # Tensión Universal
+M_e = 0.51099895 * 10**(-3)     # Masa del electrón en GeV
+M_Planck = 1.22 * 10**19        # Masa de Planck (GeV)
+
+# Fórmula: M_Planck / M_e = C ^ N_Planck
+# N_Planck = log(Base C) (M_Planck / M_e)
+N_Planck = np.log(M_Planck / M_e) / np.log(C)
+
+print("\n--- 🌌 Predicción del Nivel Jerárquico de Planck (TDH) ---")
+print(f"| Nivel Jerárquico de Planck (N_Planck): {N_Planck:.3f}")
+print("----------------------------------------------------------")

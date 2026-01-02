@@ -1,0 +1,52 @@
+import numpy as np
+import matplotlib.pyplot as plt
+from sympy import sieve, li
+
+def analizar_mersenne_en_error(n_max):
+    # 1. Generar Primos y Referencia Li(x)
+    primos = np.array(list(sieve.primerange(1, n_max + 1)))
+    referencia_li = np.array([float(li(p)) for p in primos])
+    
+    # 2. Tu Modelo (Frecuencia Maestra)
+    f_tuya = (np.pi / 6) + 0.15005
+    brecha = np.abs((3.5 + 1.5 * np.sin(primos * f_tuya)) - (3.5 + 1.2 * np.sin(primos * 0.51)))
+    area_tuya = np.cumsum(brecha)
+    
+    # 3. Normalización y Cálculo del Error (Línea Azul)
+    li_norm = referencia_li * (area_tuya[-1] / referencia_li[-1])
+    error = area_tuya - li_norm
+    
+    # 4. Identificar Primos de Mersenne en el rango
+    mersenne_exponentes = [2, 3, 5, 7, 13, 17, 19]
+    primos_mersenne = [2**p - 1 for p in mersenne_exponentes if 2**p - 1 <= n_max]
+    
+    # Hallar los índices de estos primos en nuestra lista
+    indices_m = [np.where(primos == m)[0][0] for m in primos_mersenne]
+    errores_m = error[indices_m]
+    
+    # 5. Visualización
+    plt.figure(figsize=(14, 7))
+    plt.plot(primos, error, color='blue', lw=0.5, alpha=0.7, label='Error de Resonancia (Tu Modelo)')
+    plt.axhline(0, color='red', linestyle='--', lw=1)
+    
+    # Marcar los Primos de Mersenne
+    for i, m in enumerate(primos_mersenne):
+        plt.scatter(m, errores_m[i], color='red', s=100, edgecolors='black', zorder=5)
+        plt.annotate(f'M{mersenne_exponentes[i]} ({m})', (m, errores_m[i]), 
+                     textcoords="offset points", xytext=(0,10), ha='center', fontweight='bold')
+
+    plt.title("¿Tienen los Primos de Mersenne una Firma Energética Especial?")
+    plt.xlabel("Valor del Número Primo")
+    plt.ylabel("Diferencia Acumulada (Error)")
+    plt.grid(True, alpha=0.3)
+    plt.show()
+    
+    return list(zip(primos_mersenne, errores_m))
+
+# Ejecutar análisis
+analisis_m = analizar_mersenne_en_error(1048576)
+
+print("--- POSICIÓN DE MERSENNE EN LA ONDA DE ERROR ---")
+for p, e in analisis_m:
+    posicion = "PICO (Exceso)" if e > 0 else "VALLE (Déficit)"
+    print(f"Primo M{int(np.log2(p+1))}: {p} | Error: {e:.4f} | Ubicación: {posicion}")

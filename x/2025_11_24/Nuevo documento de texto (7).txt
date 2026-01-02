@@ -1,0 +1,31 @@
+# --- Cálculo de la Novedad: Retraso en Rayos Gamma (GRB) ---
+# Demostraremos que la Discreción Dimensional (l_P) causa un retraso medible.
+import numpy as np
+
+# Constantes Fundamentales (del acoplamiento UDT)
+G = 6.6743e-11
+hbar = 1.05457e-34
+c = 2.9979e8
+
+# 1. Calculamos la Energía de Planck (E_P), donde la UDT domina.
+# E_P = m_P * c^2 = sqrt(hbar * c^5 / G)
+E_P = np.sqrt((hbar * c**5) / G)
+
+# 2. Datos Independientes (GRB Típica)
+L_distancia = 5.0e25  # Distancia al GRB (5 mil millones de años luz, en metros)
+E_high = 1.0e9        # Energía del fotón de alta energía (1 GeV, en eV)
+E_low = 1.0e6         # Energía del fotón de baja energía (1 MeV, en eV)
+# Conversión de energía de eV a Julios (para unidades SI)
+e = 1.602176634e-19   # Carga elemental
+E_high_J = E_high * e
+E_P_J = E_P           # E_P ya está en Julios
+
+# 3. La Predicción de la Novedad (Retraso Temporal)
+# Usando la corrección lineal n=1 y solo la energía del fotón alto para el retraso:
+Delta_t_UDT = (L_distancia / c) * (E_high_J / E_P_J)
+
+print("### Comprobación de la Novedad UDT: Dispersión en Rayos Gamma ###")
+print(f"Energía de Planck (E_P): {E_P_J:.2e} Julios")
+print(f"Energía del Fotón Alto (E_high): {E_high_J:.2e} Julios")
+print("-" * 50)
+print(f"Retraso predicho por la Discreción Dimensional (Delta_t): {Delta_t_UDT:.5f} segundos")

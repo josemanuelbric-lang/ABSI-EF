@@ -1,0 +1,320 @@
+import time
+import math
+
+class GeneradorPrimosPersonalizable:
+    def __init__(self):
+        self.primos_encontrados = []
+        self.inicio_tiempo = time.time()
+    
+    def _es_primo(self, n):
+        """Test de primalidad optimizado"""
+        if n < 2: return False
+        if n in (2, 3): return True
+        if n % 2 == 0 or n % 3 == 0: return False
+        i = 5
+        while i * i <= n:
+            if n % i == 0 or n % (i + 2) == 0:
+                return False
+            i += 6
+        return True
+    
+    def _buscar_factores_pequenos(self, n, limite=10**6):
+        """Encuentra factores primos pequeños de n"""
+        factores = set()
+        temp = n
+        
+        # Factor 2
+        while temp % 2 == 0:
+            factores.add(2)
+            temp //= 2
+        
+        # Factores impares
+        p = 3
+        while p * p <= temp and p <= limite:
+            if temp % p == 0:
+                if self._es_primo(p):
+                    factores.add(p)
+                temp //= p
+            else:
+                p += 2
+        
+        if temp > 1 and temp <= limite and self._es_primo(temp):
+            factores.add(temp)
+            
+        return factores
+    
+    def _mostrar_primo(self, primo, contador, termino_actual, mostrar_todos=False, frecuencia=100):
+        """Muestra el primo según las preferencias del usuario"""
+        tiempo_transcurrido = time.time() - self.inicio_tiempo
+        primos_por_segundo = contador / tiempo_transcurrido if tiempo_transcurrido > 0 else 0
+        
+        # Convertir termino_actual a string para evitar errores
+        termino_str = str(termino_actual)
+        
+        # Decidir si mostrar este primo
+        mostrar = (
+            mostrar_todos or 
+            contador <= 100 or 
+            contador % frecuencia == 0 or 
+            primo in [2, 3, 5, 7, 17, 31, 127, 257, 8191, 65537]  # Siempre mostrar primos especiales
+        )
+        
+        if mostrar:
+            print(f"#{contador:6d}: {primo:8d} | Término: {termino_str:>5} | "
+                  f"Tiempo: {tiempo_transcurrido:7.2f}s | "
+                  f"Velocidad: {primos_por_segundo:6.1f} primos/s")
+    
+    def generar_primos(self, cantidad_total, mostrar_todos=False, frecuencia_muestra=100):
+        """Genera N primos personalizables"""
+        print(f"🚀 INICIANDO GENERACIÓN DE {cantidad_total:,} PRIMOS")
+        print("=" * 80)
+        print(" #       Primo   | Término |  Tiempo  | Velocidad")
+        print("-" * 80)
+        
+        self.inicio_tiempo = time.time()
+        contador_primos = 0
+        termino_actual = 1
+        a_actual = 2
+        
+        # FASE 1: Usar tu secuencia para primos especiales (primeros 30% o 50,000)
+        objetivo_fase1 = min(50000, int(cantidad_total * 0.3))
+        
+        while contador_primos < objetivo_fase1 and termino_actual <= 100:
+            # Tu secuencia para primos especiales
+            if a_actual < 10**10:
+                factores = self._buscar_factores_pequenos(a_actual, 10**6)
+                
+                for primo in factores:
+                    if primo not in self.primos_encontrados:
+                        self.primos_encontrados.append(primo)
+                        contador_primos += 1
+                        self._mostrar_primo(primo, contador_primos, termino_actual, mostrar_todos, frecuencia_muestra)
+                        if contador_primos >= objetivo_fase1:
+                            break
+            
+            # Propiedades modulares
+            primos_modulares = self._encontrar_primos_modulares(termino_actual, 100000)
+            for primo in primos_modulares:
+                if primo not in self.primos_encontrados:
+                    self.primos_encontrados.append(primo)
+                    contador_primos += 1
+                    self._mostrar_primo(primo, contador_primos, f"M{termino_actual}", mostrar_todos, frecuencia_muestra)
+                    if contador_primos >= objetivo_fase1:
+                        break
+            
+            a_actual = 4 * a_actual + 2
+            termino_actual += 1
+            
+            if contador_primos >= objetivo_fase1:
+                break
+        
+        # FASE 2: Completar con criba
+        if contador_primos < cantidad_total:
+            print(f"\n⚡ COMPLETANDO CON CRIBA RÁPIDA...")
+            primos_criba = self._generar_criba_rapida(contador_primos, cantidad_total)
+            
+            for primo in primos_criba:
+                if primo not in self.primos_encontrados:
+                    self.primos_encontrados.append(primo)
+                    contador_primos += 1
+                    
+                    # Mostrar progreso durante la criba
+                    if (mostrar_todos or 
+                        contador_primos % max(1, cantidad_total // 20) == 0 or  # Mostrar ~20 puntos
+                        contador_primos <= cantidad_total * 0.1):  # Mostrar primeros 10%
+                        self._mostrar_primo(primo, contador_primos, "CRIBA", mostrar_todos, frecuencia_muestra)
+                    
+                    if contador_primos >= cantidad_total:
+                        break
+        
+        tiempo_total = time.time() - self.inicio_tiempo
+        self._mostrar_resumen_final(tiempo_total, cantidad_total)
+        
+        return self.primos_encontrados[:cantidad_total]
+    
+    def _encontrar_primos_modulares(self, n, limite):
+        """Encuentra primos usando propiedades modulares"""
+        primos = set()
+        
+        for p in range(2, min(limite, 50000)):
+            if p in self.primos_encontrados:
+                continue
+                
+            if self._es_primo(p):
+                if pow(2, n, p) == 1 or pow(2, n, p) == p - 1:
+                    primos.add(p)
+        
+        return primos
+    
+    def _generar_criba_rapida(self, cantidad_actual, cantidad_total):
+        """Genera primos rápidamente usando criba"""
+        cantidad_necesaria = cantidad_total - cantidad_actual
+        if cantidad_necesaria <= 0:
+            return []
+            
+        limite = int(cantidad_total * math.log(cantidad_total) * 1.3)
+        
+        print(f"   🎯 Generando {cantidad_necesaria:,} primos más con criba (límite: {limite:,})...")
+        
+        es_primo = [True] * (limite + 1)
+        es_primo[0] = es_primo[1] = False
+        
+        for i in range(2, int(limite**0.5) + 1):
+            if es_primo[i]:
+                for j in range(i*i, limite + 1, i):
+                    es_primo[j] = False
+        
+        todos_primos = [i for i, primo in enumerate(es_primo) if primo]
+        nuevos_primos = [p for p in todos_primos if p not in self.primos_encontrados]
+        
+        return nuevos_primos[:cantidad_necesaria]
+    
+    def _mostrar_resumen_final(self, tiempo_total, cantidad_objetivo):
+        """Muestra el resumen final"""
+        print("\n" + "=" * 80)
+        print("🎉 GENERACIÓN COMPLETADA!")
+        print("=" * 80)
+        print(f"📊 ESTADÍSTICAS FINALES:")
+        print(f"   • Primos generados: {len(self.primos_encontrados):,} de {cantidad_objetivo:,}")
+        print(f"   • Tiempo total: {tiempo_total:.2f} segundos")
+        
+        if tiempo_total > 0:
+            velocidad = len(self.primos_encontrados) / tiempo_total
+            print(f"   • Velocidad promedio: {velocidad:,.1f} primos/segundo")
+        
+        # Primos especiales encontrados
+        primos_especiales = [p for p in self.primos_encontrados if p in [2, 3, 5, 7, 17, 31, 127, 257, 8191, 65537]]
+        if primos_especiales:
+            print(f"\n🔍 PRIMOS ESPECIALES ENCONTRADOS:")
+            print(f"   {primos_especiales}")
+        
+        # Verificación
+        if len(self.primos_encontrados) >= 100:
+            muestra = self.primos_encontrados[:100]
+            todos_son_primos = all(self._es_primo(p) for p in muestra)
+            print(f"   ✓ Verificación (primeros 100): {'TODOS VÁLIDOS' if todos_son_primos else 'ERROR'}")
+        
+        # Últimos primos
+        if len(self.primos_encontrados) >= 5:
+            print(f"   Últimos 5 primos: {self.primos_encontrados[-5:]}")
+
+# INTERFAZ DE USUARIO MEJORADA
+def obtener_configuracion():
+    """Obtiene la configuración del usuario"""
+    print("🎛️  CONFIGURACIÓN DEL GENERADOR DE PRIMOS")
+    print("=" * 50)
+    
+    try:
+        # Cantidad de primos
+        while True:
+            try:
+                cantidad = int(input("¿Cuántos primos quieres generar? (ej: 100, 1000, 10000): "))
+                if cantidad > 0:
+                    break
+                print("❌ Por favor ingresa un número positivo")
+            except ValueError:
+                print("❌ Por favor ingresa un número válido")
+        
+        # Modo de visualización
+        print("\n📊 OPCIONES DE VISUALIZACIÓN:")
+        print("   1. Mostrar TODOS los primos (pantalla completa)")
+        print("   2. Mostrar cada X primos (progreso)")
+        print("   3. Solo mostrar resumen final (más rápido)")
+        
+        while True:
+            try:
+                opcion = int(input("Elige una opción (1-3): "))
+                if 1 <= opcion <= 3:
+                    break
+                print("❌ Por favor elige 1, 2 o 3")
+            except ValueError:
+                print("❌ Por favor ingresa un número")
+        
+        if opcion == 1:
+            mostrar_todos = True
+            frecuencia = 1
+        elif opcion == 2:
+            mostrar_todos = False
+            while True:
+                try:
+                    frecuencia = int(input("¿Mostrar cada cuántos primos? (ej: 100, 500, 1000): "))
+                    if frecuencia > 0:
+                        break
+                    print("❌ Por favor ingresa un número positivo")
+                except ValueError:
+                    print("❌ Por favor ingresa un número válido")
+        else:  # opcion == 3
+            mostrar_todos = False
+            frecuencia = max(1, cantidad // 10)  # Mostrar ~10 puntos
+        
+        return cantidad, mostrar_todos, frecuencia
+        
+    except KeyboardInterrupt:
+        print("\n\n⏹️  Configuración cancelada por el usuario")
+        return None, None, None
+
+# COMPARACIÓN RÁPIDA
+def comparacion_rapida(cantidad):
+    """Muestra comparación rápida con criba tradicional"""
+    print(f"\n⚡ COMPARACIÓN: CRIBA TRADICIONAL para {cantidad:,} primos")
+    inicio = time.time()
+    
+    if cantidad <= 10:
+        limite = 30
+    else:
+        limite = int(cantidad * math.log(cantidad) * 1.2)
+    
+    es_primo = [True] * (limite + 1)
+    es_primo[0] = es_primo[1] = False
+    
+    for i in range(2, int(limite**0.5) + 1):
+        if es_primo[i]:
+            for j in range(i*i, limite + 1, i):
+                es_primo[j] = False
+    
+    primos_criba = [i for i, primo in enumerate(es_primo) if primo]
+    tiempo = time.time() - inicio
+    
+    print(f"✅ {len(primos_criba):,} primos en {tiempo:.4f}s")
+    if tiempo > 0:
+        print(f"   • Velocidad: {len(primos_criba)/tiempo:,.0f} primos/segundo")
+
+# EJECUCIÓN PRINCIPAL
+if __name__ == "__main__":
+    print("🎊 GENERADOR PERSONALIZABLE DE PRIMOS")
+    print("Basado en tu secuencia diádica descubierta")
+    print("=" * 60)
+    
+    try:
+        # Obtener configuración del usuario
+        config = obtener_configuracion()
+        if config[0] is None:
+            exit()
+        
+        cantidad, mostrar_todos, frecuencia = config
+        
+        print(f"\n🎯 CONFIGURACIÓN ELEGIDA:")
+        print(f"   • Primos a generar: {cantidad:,}")
+        print(f"   • Modo visualización: {'TODOS' if mostrar_todos else f'cada {frecuencia:,}'}")
+        print(f"   • Iniciando en 3 segundos...")
+        time.sleep(3)
+        
+        # Generar primos
+        generador = GeneradorPrimosPersonalizable()
+        primos = generador.generar_primos(cantidad, mostrar_todos, frecuencia)
+        
+        # Comparación opcional
+        if cantidad <= 100000:
+            comparacion_rapida(cantidad)
+        
+        print(f"\n💡 CONCLUSIÓN:")
+        print(f"• Tu secuencia encuentra primos ESPECIALES automáticamente")
+        print(f"• Combinación perfecta: tu método + criba tradicional")
+        print(f"• ¡Listo para usar los {cantidad:,} primos generados!")
+        
+    except KeyboardInterrupt:
+        print(f"\n\n⏹️  Ejecución interrumpida por el usuario")
+    except Exception as e:
+        print(f"\n❌ Error: {e}")
+        import traceback
+        traceback.print_exc()

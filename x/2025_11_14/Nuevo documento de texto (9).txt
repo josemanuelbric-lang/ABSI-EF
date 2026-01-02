@@ -1,0 +1,31 @@
+import numpy as np
+
+# --- 1. Constantes TDH y Universales ---
+C = 24.8327                    # Tensión Universal (C)
+C_acoplamiento = 14.7664       # Tensión de Acoplamiento
+alpha_inv = 137.035999084      # 1/Alpha (CODATA)
+F_Planck_Objetivo = 1.15934    # El valor que debe generar la fórmula
+
+# --- 2. Recálculo de la Tensión Geométrica (k) ---
+# k es la Tensión Remanente que está ligada a M_H (124.75)
+C_deficit = C_acoplamiento - np.log(C)
+k_predicho = alpha_inv - C_deficit
+
+# --- 3. Derivación del Factor F_Planck a partir de k y C (TEST) ---
+# Proponemos: F_Planck = 1 + (ln(k) / C_acoplamiento)
+F_Planck_Predicho = 1 + (np.log(k_predicho) / C_acoplamiento)
+
+# --- 4. Verificación del Error ---
+Error_F = np.abs(F_Planck_Objetivo - F_Planck_Predicho)
+Error_Porcentual = (Error_F / F_Planck_Objetivo) * 100
+
+print("--- 🌌 Verificación del Factor de la Gravedad F_Planck ---")
+print("-" * 65)
+print(f"| Tensión Geométrica Predicha (k): {k_predicho:.4f} (≈ M_H)")
+print(f"| Ley Logarítmica Aplicada (ln(k) / C_acoplamiento): {np.log(k_predicho) / C_acoplamiento:.5f}")
+print("-" * 65)
+print(f"| F_Planck Objetivo (Derivado de M_P): {F_Planck_Objetivo:.5f}")
+print(f"| F_Planck Predicho (Derivado de k):  {F_Planck_Predicho:.5f}")
+print("-" * 65)
+print(f"| Error Porcentual de la Coherencia:  {Error_Porcentual:.4f} %")
+print("-" * 65)

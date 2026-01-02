@@ -1,0 +1,51 @@
+import numpy as np
+
+# --- 1. Constantes TDH ---
+M_e = 0.51099895         # Masa del Electrón (MeV)
+C = 24.8327              # Tensión Universal de Emergencia
+C_acoplamiento = 14.7664 # Tensión de Acoplamiento (del error cero)
+
+# Factores de Acoplamiento Principales F(N)
+factores_F = {1: (1/C),      # F_e (N=1) -> 1/C para que M_e/M_e = 1
+              2: 0.335302,   # F_mu (N=2)
+              3: 0.227071}   # F_tau (N=3)
+
+# Definición de la Jerarquía (Nivel Base : Número de Ramas F)
+JERARQUIA = {1: 3,  # N=1 tiene 3 ramas (e, e', e'')
+             2: 5,  # N=2 tiene 5 ramas
+             3: 7}  # N=3 tiene 7 ramas
+
+print("## 🚀 Predicción de 15 Partículas por la TDH ##")
+print("-" * 60)
+
+# --- 2. Iteración sobre la Jerarquía ---
+particula_count = 0
+for N_i, F_N in JERARQUIA.items():
+    factor_base = M_e * (C ** N_i) * factores_F[N_i]
+    
+    for j in range(1, F_N + 1):
+        # Factor de Rama (B_j): 1 + (j - 1) / C_acoplamiento
+        B_j = 1 + ((j - 1) / C_acoplamiento)
+        
+        # Fórmula Unificada Extendida
+        M_P_ij = factor_base * B_j
+        
+        particula_count += 1
+        
+        # Etiqueta de la partícula
+        etiqueta = f"P_{N_i},{j}"
+        
+        # El leptón original tiene j=1 (B_j=1)
+        if N_i == 1 and j == 1:
+            nombre = "Electrón (e)"
+        elif N_i == 2 and j == 1:
+            nombre = "Muón (μ)"
+        elif N_i == 3 and j == 1:
+            nombre = "Tau (τ)"
+        else:
+            nombre = f"Hipotético {etiqueta}"
+
+        print(f"| {particula_count:<2}. {nombre:<20} | N={N_i}, Rama={j:<2} | Masa: {M_P_ij:.4f} MeV |")
+
+print("-" * 60)
+print(f"Total de Partículas Predichas: {particula_count}")

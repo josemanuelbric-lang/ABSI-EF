@@ -1,0 +1,40 @@
+import numpy as np
+import matplotlib.pyplot as plt
+
+# Proporciones de masa reales (Y = m_l / m_e)
+proporciones_y = np.array([1.000, 206.77, 3477.2])
+
+# Niveles Jerárquicos (Potencia N)
+niveles_n = np.array([1, 2, 3]) 
+
+# Cálculo de la Tensión Base T = Y^(1/N)
+T_base = proporciones_y**(1/niveles_n)
+
+# Valor promedio de Tensión Base (La Predicción Fija C)
+C_predicho = np.mean(T_base[1:]) 
+
+# --- Gráfica de Tensión Base Constante ---
+plt.figure(figsize=(10, 6))
+
+# Puntos de Datos Reales (Tensión Base T_l)
+plt.scatter(niveles_n, T_base, s=150, color='blue', zorder=5, 
+            label='Tensión Base Calculada $\mathbf{T} = (\mathbf{M}_l / m_e)^{1/N}$')
+
+# Línea de Predicción de la TDH (Línea Horizontal C)
+plt.axhline(y=C_predicho, color='red', linestyle='--', linewidth=2, 
+            label=f'Predicción TDH (Tensión Constante $C \\approx {C_predicho:.3f}$)')
+
+# Etiquetas y Título
+plt.title('TDH: Demostración de la Tensión Base Constante $C$ (Emergencia de Potencia $N$)', fontsize=14)
+plt.xlabel('Nivel Jerárquico de Emergencia ($N$)', fontsize=12)
+plt.ylabel('Tensión Base $(\mathbf{T})$', fontsize=12)
+plt.xticks(niveles_n, ['Electrón (N=1)', 'Muón (N=2)', 'Tau (N=3)'])
+plt.grid(True, linestyle='--')
+plt.legend()
+plt.show()
+
+# Resultado de la demostración
+print(f"Tensión Base (Muón, N=2): {T_base[1]:.3f}")
+print(f"Tensión Base (Tau, N=3): {T_base[2]:.3f}")
+print(f"Constante de Acoplamiento Promedio C: {C_predicho:.3f}")
+print(f"El Error es de: {np.abs(T_base[1] - C_predicho) / C_predicho * 100:.2f}%")

@@ -1,0 +1,48 @@
+import matplotlib.pyplot as plt
+import numpy as np
+import math
+import random
+
+def obtener_tasa_paso_a_paso(n):
+    temp = n
+    tasas = []
+    l_count = 0
+    r_count = 0
+    pasos = 0
+    
+    while temp > 1:
+        pasos += 1
+        if temp % 2 == 0:
+            r_count += 1
+            temp //= 2
+        else:
+            l_count += 1
+            temp = 3 * temp + 1
+        
+        # Calculamos el potencial promedio por paso hasta ese momento
+        psi_promedio = (l_count * math.log2(3) - r_count) / pasos
+        tasas.append(psi_promedio)
+    return tasas
+
+# 1. Sujetos de prueba
+n_27 = 27
+n_gigante = random.randint(10**99, 10**100)
+
+tasa_27 = obtener_tasa_paso_a_paso(n_27)
+tasa_gigante = obtener_tasa_paso_a_paso(n_gigante)
+
+# --- Graficación ---
+plt.figure(figsize=(12, 6))
+
+# Usamos linspace para que ambos ocupen el 100% del ancho del gráfico
+plt.plot(np.linspace(0, 100, len(tasa_27)), tasa_27, label="Tasa N=27", color='blue', alpha=0.8)
+plt.plot(np.linspace(0, 100, len(tasa_gigante)), tasa_gigante, label="Tasa N Gigante", color='orange', alpha=0.5)
+
+plt.axhline(y=-0.5, color='black', linestyle='--', label="Tasa Teórica de Contracción")
+plt.title("Normalización por Pasos: Identidad Estructural del Embudo")
+plt.xlabel("Progreso de la Filtración (%)")
+plt.ylabel("Potencial Promedio por Paso ($\Psi / t$)")
+plt.ylim(-1.5, 0.5) # Zoom en la zona de interés
+plt.legend()
+plt.grid(alpha=0.3)
+plt.show()

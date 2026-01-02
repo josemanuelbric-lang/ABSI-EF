@@ -1,0 +1,19 @@
+Crear un creardor de codigo de c# para lo siguiente Crear una carpeta de 
+
+mienbros_ //tiene que ser piso para que no coindida con c#
+	class
+		fielt
+			_byte
+			_object
+			_bytePuntero
+			_objectPuntero
+  
+	interface
+	struct
+	ref struct
+	readonly struct
+	readonly ref struct
+	record
+	record class
+	record struct
+	readonly record struct

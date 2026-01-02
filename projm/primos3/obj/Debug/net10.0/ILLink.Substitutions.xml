@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<linker>
+  <assembly fullname="primos3">
+    <resource name="FSharpSignatureData.primos3" action="remove"></resource>
+    <resource name="FSharpSignatureCompressedData.primos3" action="remove"></resource>
+    <resource name="FSharpSignatureDataB.primos3" action="remove"></resource>
+    <resource name="FSharpSignatureCompressedDataB.primos3" action="remove"></resource>
+    <resource name="FSharpOptimizationData.primos3" action="remove"></resource>
+    <resource name="FSharpOptimizationCompressedData.primos3" action="remove"></resource>
+    <resource name="FSharpOptimizationDataB.primos3" action="remove"></resource>
+    <resource name="FSharpOptimizationCompressedDataB.primos3" action="remove"></resource>
+    <resource name="FSharpOptimizationInfo.primos3" action="remove"></resource>
+    <resource name="FSharpSignatureInfo.primos3" action="remove"></resource>
+  </assembly>
+</linker>

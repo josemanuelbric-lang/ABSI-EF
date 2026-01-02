@@ -1,0 +1,24 @@
+import numpy as np
+from scipy.linalg import eigvalsh
+
+# --- 1. Definición del Atomimensional Compuesto (Estado de Bell) ---
+# |psi>_AB = 1/sqrt(2) * (|00> + |11>). Vector 4x1.
+psi_AB = np.array([1/np.sqrt(2), 0, 0, 1/np.sqrt(2)], dtype=complex) 
+
+# Operador de Densidad Total (Puro, S=0)
+rho_AB = np.outer(psi_AB, np.conj(psi_AB))
+
+# --- 2. La Trazada (Reducción a A) ---
+# Se realiza la Traza Parcial sobre B (segundo Atomensional)
+# rho_A = rho_00 + rho_11 (tomando submatrices 2x2 de la 4x4)
+rho_A = rho_AB[0:2, 0:2] + rho_AB[2:4, 2:4] 
+
+# --- 3. Entropía de Entrelazamiento ---
+eigenvalores_A = eigvalsh(rho_A)
+log2_eigen = np.ma.log2(eigenvalores_A).filled(0) 
+entropia_entrelazamiento = -np.sum(eigenvalores_A * log2_eigen)
+
+print("### Demostración de Proximidad Máxima (Entrelazamiento) ###")
+print(f"1. Matriz de Densidad Reducida (Rho_A):\n{rho_A.round(4)}")
+print("-" * 50)
+print(f"2. Entropía de Entrelazamiento (S_ent): {entropia_entrelazamiento:.4f} bits")

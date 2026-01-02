@@ -1,0 +1,43 @@
+import numpy as np
+
+# --- 1. Definición de Atomimensionales (Base Z) ---
+# Usamos una base simple de Signo (Existencia/Anti-Existencia)
+# Estado Positivo (Existencia)
+psi_1 = np.array([1, 0])  
+# Estado Negativo (Anti-Existencia)
+psi_2 = np.array([0, 1])  
+
+# --- 2. Operador de Emergencia de Signo (Observable) ---
+# Este operador mide el Signo (+1 o -1). 
+# Corresponde a la matriz que tiene autovalores +1 y -1.
+A_operador = np.array([[1, 0], 
+                       [0, -1]]) 
+
+# --- 3. Definición de la Matriz de Densidad (Mezcla) ---
+p_1 = 0.5  # 50% de probabilidad de ser Positivo
+p_2 = 0.5  # 50% de probabilidad de ser Negativo
+
+# rho = p1 * |psi1><psi1| + p2 * |psi2><psi2|
+rho_mezcla = p_1 * np.outer(psi_1, psi_1) + p_2 * np.outer(psi_2, psi_2)
+
+# El resultado para esta mezcla 50/50 es la matriz diagonal con 0.5 en la diagonal:
+# rho_mezcla = [[0.5, 0.0], 
+#               [0.0, 0.5]]
+
+# --- 4. Medición Colectiva (Energía Emergente) ---
+# <A> = Tr(rho * A)
+# Esta es la predicción de la UDT para la energía total del volumen.
+energia_emergente_colectiva = np.trace(np.dot(rho_mezcla, A_operador))
+
+print("### Operador de Densidad Dimensional (Matriz Rho) ###")
+print(f"Matriz de Densidad (Rho, Mezcla 50/50):\n{rho_mezcla}")
+print("\n--- Medición Colectiva (Ley de Emergencia Phi) ---")
+print(f"Valor Esperado de Energía Emergente (Tr(rho * A)): {energia_emergente_colectiva:.2f}")
+
+# --- 5. Demostración de la diferencia (Entropía S) ---
+# Calculamos la Entropía de Von Neumann (medida de la ambigüedad)
+# S(rho) = -Tr(rho * log2(rho)). Si S > 0, es una mezcla estadística.
+eigenvalores = np.linalg.eigvalsh(rho_mezcla)
+entropia_von_neumann = -np.sum(eigenvalores * np.ma.log2(eigenvalores).filled(0))
+
+print(f"Entropía Dimensional (S(rho)): {entropia_von_neumann:.2f} bits")

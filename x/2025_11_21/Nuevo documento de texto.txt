@@ -1,0 +1,72 @@
+from sympy import isprime
+import math
+
+# Lista de exponentes primos de Wagstaff conocidos para verificación (A000978)
+WAGSTAFF_EXPONENTES_CONOCIDOS = {3, 5, 7, 11, 13, 17, 19, 23, 31, 43, 61, 79}
+
+def test_wagstaff_primalidad_rapida(k):
+    """
+    Prueba si Wk = (2^k + 1) / 3 es un Probable Primo (PRP) usando un test
+    de Miller-Rabin directamente en la forma modular.
+    
+    Usaremos la función isprime de SymPy para grandes números, que usa
+    tests probabilísticos (PRP).
+    """
+    if k <= 2:
+        return k == 2  # (2^2+1)/3 = 5
+    
+    # 1. GENERAR EL NÚMERO Wk
+    # Generar Wk = (2^k + 1) / 3 sin overflow usando BigInt o módulos
+    # Aquí usamos Python BigInts, pero con cuidado para k muy grandes.
+    try:
+        # La división es exacta, ya que (2^k + 1) es divisible por 3 si k es impar.
+        Wk = (pow(2, k) + 1) // 3
+    except OverflowError:
+        print(f"Advertencia: Exponente k={k} demasiado grande para cálculo directo.")
+        return False
+
+    # 2. TEST DE PRIMALIDAD
+    # Para números de esta forma, un test de Miller-Rabin es suficiente para
+    # encontrar PRP's (Probable Primes).
+    return isprime(Wk)
+
+def predecir_candidatos_wagstaff(max_k_check):
+    """
+    Genera candidatos k basado en los criterios NECESARIOS
+    y los prueba de manera eficiente.
+    """
+    print(f"Buscando candidatos de Wagstaff hasta k = {max_k_check}...")
+    
+    # 1. Obtener todos los primos impares hasta max_k_check
+    # Usamos SymPy para obtener primos de manera eficiente
+    candidatos_k = [p for p in range(3, max_k_check + 1) if isprime(p)]
+    
+    # Lista para almacenar los exponentes que generaron un primo
+    exponentes_primos_encontrados = []
+
+    for k in candidatos_k:
+        # 2. FILTRO CLAVE: k debe ser congruente a 1 o 3 (mod 6)
+        # Esto filtra los primos que son equivalentes a 5 (mod 6),
+        # ya que Wk sería divisible por 5.
+        if k % 6 == 5:
+            # print(f"Saltando k={k} porque k mod 6 = 5. Wk sería divisible por 5.")
+            continue
+        
+        # 3. Prueba de Primalidad Rápida
+        if test_wagstaff_primalidad_rapida(k):
+            print(f"🎉 ¡Candidato encontrado! Exponente k = {k}")
+            exponentes_primos_encontrados.append(k)
+        
+    return exponentes_primos_encontrados
+
+# --- EJECUCIÓN ---
+# Probamos hasta el exponente 100 para verificar los resultados conocidos
+MAX_EXPONENTE = 100 
+primos_encontrados = predecir_candidatos_wagstaff(MAX_EXPONENTE)
+
+print("-" * 50)
+print(f"✅ Exponentes de Wagstaff (PRP's) encontrados hasta {MAX_EXPONENTE}:")
+print(primos_encontrados)
+
+# Verificación de los conocidos en el rango:
+# {3, 5, 7, 11, 13, 17, 19, 23, 31, 43, 61, 79}

@@ -1,0 +1,51 @@
+import numpy as np
+
+# --- 1. Definición de Constantes y Atomodimensional ---
+# La unidad fundamental de Inconmensurabilidad.
+hbar_udt = 1.0  
+# El Atomimensional de estado (Materia/Fuente)
+atomodimensional = np.array([3.0, 4.0], dtype=complex)
+
+# --- 2. Ley de Emergencia (Phi) y Fuente de Gravedad (T) ---
+E_materia_emergente = np.vdot(atomodimensional, atomodimensional).real
+T_fuente_gravedad = E_materia_emergente  # T = 25.0
+
+print("### 1. Emergencia (Fuente T) ###")
+print(f"Energía/Masa Emergente (T) = {T_fuente_gravedad:.2f} unidades de Existencia\n")
+
+# --- 3. Modelo de Tensión Dimensional G(r) ---
+# Simulación de la distancia 'r' desde la fuente.
+Distancia_r_Lejana = 100.0  
+Distancia_r_Cercana = 5.0     
+Delta_X_Base = 10.0 # Incertidumbre base en espacio plano
+
+def calcular_tension_dimensional(T, r, Delta_X_base):
+    # La Tensión G es una función que comprime Delta_X
+    # Proponemos una Tensión inversamente proporcional a la distancia al cuadrado (como 1/r^2)
+    # Factor de Tensión F_T: 1.0 (máxima compresión) si r es 0, 0.0 si r es infinito.
+    # Usamos una fórmula tipo 'Lorentziana' para simular el campo:
+    F_Tension = T / (T + r**2)
+    
+    # La Tensión G se manifiesta como la COMPRESIÓN de la incertidumbre espacial.
+    Delta_X_curvo = Delta_X_base * (1.0 - F_Tension) 
+    
+    # El Momento compensa para mantener la Inconmensurabilidad constante.
+    Delta_P_curvo = hbar_udt / (2.0 * Delta_X_curvo)
+    
+    return F_Tension, Delta_X_curvo, Delta_P_curvo
+
+# --- 4. Resultados Lejanos (Espacio Plano) ---
+F_T_Lejano, Delta_X_L, Delta_P_L = calcular_tension_dimensional(T_fuente_gravedad, Distancia_r_Lejana, Delta_X_Base)
+print("### 2. Inconmensurabilidad Lejana (r=100) ###")
+print(f"  Tensión Dimensional (G): {F_T_Lejano:.5f} (Espacio Plano)")
+print(f"  Posición (Delta_X): {Delta_X_L:.2f}")
+print(f"  Momento (Delta_P):  {Delta_P_L:.4f}")
+print(f"  Producto (DX*DP):   {Delta_X_L * Delta_P_L:.4f} (Constante)\n")
+
+# --- 5. Resultados Cercanos (Espacio Curvo) ---
+F_T_Cercano, Delta_X_C, Delta_P_C = calcular_tension_dimensional(T_fuente_gravedad, Distancia_r_Cercana, Delta_X_Base)
+print("### 3. Inconmensurabilidad Cercana (r=5) ###")
+print(f"  Tensión Dimensional (G): {F_T_Cercano:.2f} (Espacio Curvo)")
+print(f"  Posición (Delta_X) COMPRIMIDA: {Delta_X_C:.2f}")
+print(f"  Momento (Delta_P) EXPANDIDO: {Delta_P_C:.2f}")
+print(f"  Producto (DX*DP):   {Delta_X_C * Delta_P_C:.4f} (Constante)")

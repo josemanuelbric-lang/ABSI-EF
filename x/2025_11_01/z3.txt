@@ -1,0 +1,69 @@
+import numpy as np
+import matplotlib.pyplot as plt
+
+# --- 1. Parámetros Fundamentales (TDH) ---
+D = 4.0
+F = 3.0
+N_AJUSTADA = 3.87093
+M0 = 91.2  # GeV (Masa de referencia: M_Z)
+E_PLANCK = 1.22e19 # GeV
+
+# --- 2. La Función del Todo (ToE_TDH) - Matemática Pura ---
+def alpha_unificado_puro(E, D, F, N, M0):
+    """Calcula la constante de acoplamiento universal (alpha_u) sin condicionales."""
+    
+    # Término 1: Núcleo de la Tensión Dimensional
+    nucleo_tension = (F * (D - N)) / N
+    
+    # Término 2: Factor de Amortiguamiento Logarítmico
+    # El logaritmo natural de la razón de escalas.
+    factor_logaritmico = N * np.log(E / M0)
+    
+    # La fórmula pura
+    alpha_u = nucleo_tension * (1.0 / (1.0 + factor_logaritmico))
+    return alpha_u
+
+# --- 3. Generación de Puntos para la Gráfica ---
+
+# El eje x comienza en M0 (91.2 GeV) para que ln(E/M0) >= 0.
+E_min = M0 
+E_max = E_PLANCK 
+energias = np.logspace(np.log10(E_min), np.log10(E_max), 100) 
+
+# Aplicar la Función del Todo
+alphas_unificados = [alpha_unificado_puro(E, D, F, N_AJUSTADA, M0) for E in energias]
+
+# --- 4. Generación de la Gráfica ---
+
+plt.figure(figsize=(10, 6))
+plt.plot(energias, alphas_unificados, label=r'$\mathbf{\alpha}_{\mathbf{u}} (E) \text{ (ToE Pura)}$', color='#8B0000', linewidth=3)
+
+# Referencias
+plt.axvline(M0, color='gray', linestyle='--', alpha=0.7, label=r'$\mathbf{M_Z} \text{ (Escala de Partida)}$')
+plt.axvline(E_PLANCK, color='#006400', linestyle='--', alpha=0.7, label=r'$\mathbf{E_{Planck}} \text{ (Escala de Unificación)}$')
+
+# Anotación de Comportamiento
+plt.annotate(r'Acoplamiento Máximo ($\mathbf{\alpha}_{\mathbf{u}} \approx 0.1000$)', 
+             xy=(M0 * 1.5, alphas_unificados[1]), 
+             xytext=(M0 * 5, alphas_unificados[1] + 0.05),
+             arrowprops=dict(facecolor='black', shrink=0.05, width=1, headwidth=5),
+             fontsize=10)
+
+
+# Configuración de los ejes
+plt.xscale('log')
+plt.xlabel('Escala de Energía $E$ (GeV)')
+plt.ylabel('Constante de Acoplamiento Universal $\\alpha_u(E)$')
+plt.title('Evolución de la Fuerza Unificada con la Función del Todo (TDH)')
+plt.legend()
+plt.grid(True, which="both", ls="--", linewidth=0.5)
+plt.ylim(0, 0.20)
+plt.show()
+
+# --- 5. Resultados de la Función en Escalas Críticas ---
+print("\n--- Resultados de la Función ToE Pura en Escalas Críticas ---")
+alpha_mz = alpha_unificado_puro(M0, D, F, N_AJUSTADA, M0)
+alpha_planck = alpha_unificado_puro(E_PLANCK, D, F, N_AJUSTADA, M0)
+
+print(f"1. Escala M_Z (E={M0:.2f} GeV):         α_u = {alpha_mz:.4f}")
+print(f"2. Escala de Planck (E={E_PLANCK:.2e} GeV): α_u = {alpha_planck:.6f}")

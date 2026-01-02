@@ -1,0 +1,88 @@
+import numpy as np
+
+# --- Constantes Físicas (Unidades SI) ---
+c = 2.99792458e8  # Velocidad de la luz (m/s)
+h = 6.62607015e-34 # Constante de Planck (J·s)
+
+# --- Postulados de Escala Mínima (Atomodimensionales) ---
+# Usamos el análogo de la Energía de Planck (E_Planck)
+E_Planck = 1.22e28  # Energía de Planck (J)
+# Coeficiente adimensional (xi) y Exponente (n) de la MDR
+xi = 1.0  # Coeficiente de tu Ley de Emergencia (Ajustable)
+n = 1    # Exponente de discretización (E^1)
+
+def velocidad_de_grupo_modificada(E, E_Planck, xi=1.0, n=1):
+    """
+    Calcula la velocidad de grupo (v_g) del fotón usando la Relación de Dispersión Modificada (MDR).
+    Demuestra la dependencia de v_g con la Energía E.
+    """
+    if E < 0:
+        raise ValueError("La energía debe ser positiva.")
+
+    # Término de corrección impuesto por los Atomodimensionales (A_X, A_T)
+    correccion = xi / 2 * (E / E_Planck)**n
+
+    # La velocidad v_g se desvía de c
+    v_g = c * (1 + correccion)
+    return v_g
+
+# --- Simulaciones ---
+# 1. Fotón de Baja Energía (Luz Visible) - E << E_Planck
+E_baja = 2e-19  # Energía de un fotón azul (J)
+v_baja = velocidad_de_grupo_modificada(E_baja, E_Planck, xi=xi, n=n)
+
+# 2. Fotón de Alta Energía (Rayos Gamma Extremos) - E << E_Planck
+E_alta = 1e-12  # Energía de un Rayo Gamma del Fermi-LAT (J)
+v_alta = velocidad_de_grupo_modificada(E_alta, E_Planck, xi=xi, n=n)
+
+# 3. Energía de Planck (Límite del Modelo)
+E_Planck_sim = E_Planck
+v_Planck = velocidad_de_grupo_modificada(E_Planck_sim, E_Planck, xi=xi, n=n)
+
+print(f"## 📊 Resultados de la Simulación ##")
+print(f"Velocidad de la Luz (c): {c:.10f} m/s")
+print("---------------------------------------")
+print(f"1. Luz Visible (E={E_baja:.2e} J):")
+print(f"   v_g = {v_baja:.10f} m/s (Corrección: {v_baja - c:.2e} m/s)")
+print(f"   Predicción: v_g ≈ c")
+print("---------------------------------------")
+print(f"2. Rayo Gamma Extremo (E={E_alta:.2e} J):")
+print(f"   v_g = {v_alta:.10f} m/s (Corrección: {v_alta - c:.2e} m/s)")
+print(f"   Predicción: v_g ≈ c, pero ligeramente más rápido (si xi>0)")
+print("---------------------------------------")
+print(f"3. Energía de Planck (E={E_Planck_sim:.2e} J):")
+print(f"   v_g = {v_Planck:.10f} m/s (Corrección: {v_Planck - c:.2e} m/s)")
+print(f"   Predicción: v_g = c * (1 + xi/2). Desviación de 50% si xi=1")
+print("---------------------------------------")
+
+def diferencia_tiempo_vuelo(L, E1, E2, E_Planck, xi=1.0):
+    """
+    Calcula la diferencia en el tiempo de llegada (Delta t) para dos fotones
+    de energías E1 y E2 provenientes de una distancia L.
+    """
+    # Factor de corrección dimensional
+    factor_correccion = xi / 2 * (E2 - E1) / E_Planck
+
+    # Tiempo base de viaje
+    tiempo_base = L / c
+
+    # Diferencia de tiempo predicha
+    delta_t = tiempo_base * factor_correccion
+    return delta_t
+
+# --- Simulación del Experimento (GRB) ---
+# Distancia L: 5 mil millones de años luz
+L_años_luz = 5e9
+L = L_años_luz * 9.461e15  # Conversión a metros
+
+# Energías: Fotón de Rayos Gamma (E2) y Fotón de Baja Energía (E1)
+E_alta_J = 1e-12  # Rayo Gamma (E2)
+E_baja_J = 1e-19  # Fotón de Referencia (E1)
+
+delta_t = diferencia_tiempo_vuelo(L, E_baja_J, E_alta_J, E_Planck)
+
+print(f"\n## 🚀 Prueba Experimental Simulada (GRB) ##")
+print(f"Distancia de Viaje (L): {L_años_luz:.1e} años luz")
+print(f"Energía de Planck (E_Planck): {E_Planck:.2e} J")
+print("---------------------------------------------")
+print(f"Diferencia de Tiempo Predicha (Δt): {delta_t:.10f} segundos")

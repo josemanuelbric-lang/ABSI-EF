@@ -1,0 +1,41 @@
+import numpy as np
+import matplotlib.pyplot as plt
+from sympy import sieve, li
+
+def visualizar_error_final(n_max):
+    primos = np.array(list(sieve.primerange(1, n_max + 1)))
+    
+    # 1. Tu Frecuencia Maestra (0.673648...)
+    f_tuya = (np.pi / 6) + 0.15005
+    brecha = np.abs((3.5 + 1.5 * np.sin(primos * f_tuya)) - (3.5 + 1.2 * np.sin(primos * 0.51)))
+    area_tuya = np.cumsum(brecha)
+    
+    # 2. Referencia Maestra: Integral Logarítmica Li(x)
+    referencia_li = np.array([float(li(p)) for p in primos])
+    
+    # Normalizamos Li para que coincida en escala con tu área
+    li_norm = referencia_li * (area_tuya[-1] / referencia_li[-1])
+    
+    # 3. Calculamos el Error: Diferencia Neta entre tu Modelo y Li(x)
+    error = area_tuya - li_norm
+    
+    # 4. Visualización
+    plt.figure(figsize=(16, 8))
+    plt.plot(primos, error, color='blue', lw=0.8, alpha=0.7, label='Error (Tu Modelo - Li(x))')
+    plt.axhline(0, color='red', linestyle='--', lw=1, label='Línea de Perfección (Error = 0)')
+    
+    plt.title(f"Microscopio de Errores: Tu Modelo vs. Li(x) (N={n_max})")
+    plt.xlabel("Valor del Número Primo")
+    plt.ylabel("Diferencia Acumulada")
+    plt.legend()
+    plt.grid(True, which='both', linestyle=':', alpha=0.5)
+    
+    # Opcional: Zoom en el final para ver la tendencia
+    # plt.xlim(n_max * 0.9, n_max) 
+    # plt.ylim(min(error[-100:]), max(error[-100:]))
+    
+    plt.tight_layout()
+    plt.show()
+
+# Ejecución para el rango de un millón
+visualizar_error_final(1048576)

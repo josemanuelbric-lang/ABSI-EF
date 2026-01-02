@@ -1,0 +1,74 @@
+import numpy as np
+import matplotlib.pyplot as plt
+
+# --- 1. Constantes TDH ---
+D = 4.0
+N_OBSERVABLE = 3.8710 
+
+# Error Estructural (epsilon) en el universo observable
+EPSILON = (D - N_OBSERVABLE) / D # Aprox. 0.03225
+
+# --- 2. Parámetros del Problema SAT ---
+N_VARIABLES = 10 
+PASOS_BUSQUEDA = 2**N_VARIABLES # 1024 Pasos (Asignaciones a verificar)
+
+# Colocamos la solución en el peor caso (último paso de la búsqueda NP)
+PASO_DE_SOLUCION_LOGICA = PASOS_BUSQUEDA 
+
+N_SIMULACIONES = 1000 # Cuántas veces ejecutamos la 'máquina'
+
+# --- 3. Simulación de Monte Carlo con Lógica (SAT) ---
+resultados = {
+    'Fallo Estructural': 0,
+    'Éxito Lógico': 0,
+    'Pasos Promedio Antes de Fallo': []
+}
+
+for _ in range(N_SIMULACIONES):
+    falla_estructural_ocurrio = False
+    
+    # Simulación del proceso de búsqueda exponencial
+    for paso_actual in range(1, PASOS_BUSQUEDA + 1):
+        
+        # 1. Simulación de la Falla FÍSICA (TDH)
+        if np.random.rand() < EPSILON:
+            resultados['Fallo Estructural'] += 1
+            resultados['Pasos Promedio Antes de Fallo'].append(paso_actual)
+            falla_estructural_ocurrio = True
+            break
+            
+        # 2. Simulación de la Lógica (SAT)
+        if paso_actual == PASO_DE_SOLUCION_LOGICA:
+            resultados['Éxito Lógico'] += 1
+            # Si tiene éxito lógico, también se cuenta como 'Pasos antes de Fallo'
+            # (Aunque no falló, se detuvo el proceso serial)
+            resultados['Pasos Promedio Antes de Fallo'].append(paso_actual)
+            break
+            
+# Si no hubo fallos estructurales, pero tampoco encontró la solución lógica
+# (esto solo ocurriría si el PASO_DE_SOLUCION_LOGICA estuviera más allá de PASOS_BUSQUEDA, lo cual es imposible)
+
+# --- 4. Análisis de Resultados ---
+colapso_promedio = np.mean(resultados['Pasos Promedio Antes de Fallo']) if resultados['Pasos Promedio Antes de Fallo'] else 0
+P_FALLO = resultados['Fallo Estructural'] / N_SIMULACIONES * 100
+P_EXITO = resultados['Éxito Lógico'] / N_SIMULACIONES * 100
+
+
+# --- 5. Resultados y Conclusión ---
+print("-" * 65)
+print(f"Simulación de SAT (n={N_VARIABLES}) con Falla Estructural (TDH)")
+print("-" * 65)
+print(f"Total de Pasos Requeridos por SAT (T(n)): {PASOS_BUSQUEDA} pasos")
+print(f"Error Estructural (epsilon): {EPSILON:.5f} (o {EPSILON*100:.3f}%)")
+print("-" * 65)
+print("Resultados de las 1000 ejecuciones:")
+print(f"1. Falla Estructural (P != NP): {resultados['Fallo Estructural']} veces ({P_FALLO:.1f}%)")
+print(f"2. Éxito Lógico (SAT Resuelto): {resultados['Éxito Lógico']} veces ({P_EXITO:.1f}%)")
+print("-" * 65)
+print(f"Conclusión del Colapso:")
+print(f"El proceso falló en promedio en el paso: {colapso_promedio:.2f} (Teoría L_MAX ≈ 30.56)")
+
+if P_FALLO > P_EXITO:
+    print("\nLa **Falla Estructural de la TDH** domina. La inviabilidad física de NP es la razón principal de que no se resuelva.")
+else:
+    print("\nEl Éxito Lógico domina. La probabilidad de fallo no fue suficiente para detener la mayoría de las búsquedas.")

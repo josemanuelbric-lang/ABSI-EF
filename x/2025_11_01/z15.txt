@@ -1,0 +1,92 @@
+﻿import numpy as np
+import math
+
+# --- 1. Definición Lógica del Problema (P - O(n log n)) ---
+
+# El Merge Sort (n=100) es elegido para requerir T(n) > L_MAX (30.51)
+N_MERGESORT = 100
+PASOS_P = N_MERGESORT * math.log2(N_MERGESORT) # 100 * log2(100) ≈ 664.38 pasos
+PASO_SOLUCION_P = math.ceil(PASOS_P) # 665 pasos
+TIPO_P = "P (O(n log n) - Merge Sort)"
+
+
+# --- 2. Constantes Físicas de la TDH ---
+
+D = 4.0
+N_OBSERVABLE = 3.8710
+EPSILON = (D - N_OBSERVABLE) / D # Error Estructural (aprox. 0.03225)
+N_SIMULACIONES = 10000
+L_MAX_TEORICO = -1 / np.log(1 - EPSILON) # Límite de Complejidad TDH (~30.51)
+
+# --- 3. Función de Conclusión y Simulación TDH ---
+
+def clasificar_y_concluir(tipo_problema, pasos_requeridos_int, p_exito, colapso_promedio):
+    """
+    Clasifica la viabilidad, demostrando que T(n) > L_MAX lo hace inseguro.
+    """
+    conclusion = f"El problema ({tipo_problema}) requería {pasos_requeridos_int:,} pasos."
+    
+    if "P (" in tipo_problema:
+        
+        if pasos_requeridos_int <= L_MAX_TEORICO * 1.5:
+             # Este bloque no se ejecutará con n=100, solo para T(n) pequeños.
+             return f"✅ CLASE P: {conclusion} -> La probabilidad de ÉXITO ({p_exito:.2f}%) es alta. El problema es **VIABLE**."
+
+        else:
+            # T(n)=665 >> L_MAX, por lo que debe ser inseguro.
+            conclusion += f"\nEl proceso colapsó en {colapso_promedio:.2f} pasos (L_MAX). ESTO DEMUESTRA QUE EL PEOR CASO DE P ({pasos_requeridos_int} pasos) es **ESTRUCTURALMENTE INSEGURO**."
+            return f"⚠️ CLASE P: {conclusion}"
+        
+    else:
+         # Este bloque no debería ejecutarse ya que es un problema P.
+         return "Error de clasificación."
+
+
+def simular_tdh(pasos_requeridos, paso_solucion, nombre_problema, tipo_problema):
+    resultados = {'Fallo Estructural': 0, 'Éxito Lógico': 0, 'Pasos Fallo': []}
+    pasos_requeridos_int = int(pasos_requeridos)
+    
+    # Restricción: Limitar pasos para evitar sobrecarga en problemas T(n) masivos
+    pasos_simulados = min(pasos_requeridos_int, 5000000)
+
+    for _ in range(N_SIMULACIONES):
+        
+        for paso_actual in range(1, pasos_simulados + 1):
+            
+            # 1. Falla FÍSICA (TDH)
+            if np.random.rand() < EPSILON:
+                resultados['Fallo Estructural'] += 1
+                resultados['Pasos Fallo'].append(paso_actual)
+                break
+                
+            # 2. Lógica del Éxito
+            if paso_actual == paso_solucion:
+                resultados['Éxito Lógico'] += 1
+                resultados['Pasos Fallo'].append(paso_actual)
+                break
+        
+    P_FALLO = resultados['Fallo Estructural'] / N_SIMULACIONES * 100
+    P_EXITO = resultados['Éxito Lógico'] / N_SIMULACIONES * 100
+    colapso_promedio = np.mean(resultados['Pasos Fallo']) if resultados['Pasos Fallo'] else 0
+    
+    print(f"\n### Aplicación TDH: {nombre_problema} ({tipo_problema})")
+    print(f"Límite Teórico L_MAX: {L_MAX_TEORICO:.2f} pasos")
+    print("-" * 50)
+    print(f"1. Falla Estructural (P != NP): {resultados['Fallo Estructural']:,} veces ({P_FALLO:.2f}%)")
+    print(f"2. Éxito Lógico (Resuelto): {resultados['Éxito Lógico']:,} veces ({P_EXITO:.2f}%)")
+    print(f"Colapso o Finalización Promedio: {colapso_promedio:.2f} pasos")
+    print("-" * 50)
+    
+    print(clasificar_y_concluir(tipo_problema, pasos_requeridos_int, P_EXITO, colapso_promedio))
+
+
+# --- 4. Ejecución Principal ---
+
+print("\n" + "="*70)
+print("DEMOSTRACIÓN TDH: INSEGURO ESTRUCTURAL (Merge Sort)")
+print("="*70)
+print(f"CONSTANTE TDH: Error Estructural (epsilon) = {EPSILON:.5f}")
+print(f"LÍMITE FÍSICO (L_MAX): {L_MAX_TEORICO:.2f} pasos")
+print("="*70)
+
+simular_tdh(PASOS_P, PASO_SOLUCION_P, "Ordenación por Mezcla", TIPO_P)

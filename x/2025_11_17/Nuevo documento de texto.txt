@@ -1,0 +1,134 @@
+import numpy as np
+from sympy import factorint
+import collections
+
+class AnalizadorCollatzHonesto:
+    def __init__(self):
+        self.clases_dimensionales = {}
+        
+    def clasificar_numero(self, n):
+        """Clasifica un número en su dimensión correspondiente"""
+        if n == 1:
+            return "C0"  # Estado Fundamental
+            
+        factores = factorint(n)
+        primos_impares = [p for p in factores if p != 2]
+        
+        if not primos_impares and n > 1:
+            return "C2"  # Potencias de 2
+            
+        if n % 2 == 1:
+            if len(primos_impares) == 1 and factores[primos_impares[0]] == 1:
+                return "C1"  # Primo impar
+            else:
+                return "C3"  # Compuesto impar
+        else:
+            return "C4"  # Mixto par
+    
+    def aplicar_collatz(self, n):
+        """Aplica una iteración de Collatz"""
+        if n % 2 == 0:
+            return n // 2
+        else:
+            return 3 * n + 1
+    
+    def analizar_estadisticas(self, n_max):
+        """Analiza estadísticas sin pretender demostrar nada"""
+        print(f"ANÁLISIS ESTADÍSTICO HASTA n = {n_max}")
+        print("=" * 40)
+        
+        convergencia_verificada = 0
+        max_pasos = 0
+        numero_mas_largo = 0
+        
+        for n in range(2, n_max + 1):
+            pasos = self.calcular_longitud_trayectoria(n)
+            if pasos < 10000:  # No divergió
+                convergencia_verificada += 1
+                if pasos > max_pasos:
+                    max_pasos = pasos
+                    numero_mas_largo = n
+        
+        porcentaje = (convergencia_verificada / (n_max - 1)) * 100
+        print(f"Números verificados: {convergencia_verificada}/{n_max-1}")
+        print(f"Porcentaje: {porcentaje:.2f}%")
+        print(f"Máxima longitud: {max_pasos} pasos (n={numero_mas_largo})")
+        
+        return porcentaje == 100.0
+    
+    def calcular_longitud_trayectoria(self, n):
+        """Calcula cuántos pasos toma llegar a 1"""
+        pasos = 0
+        actual = n
+        while actual != 1 and pasos < 10000:  # Límite de seguridad
+            actual = self.aplicar_collatz(actual)
+            pasos += 1
+        return pasos
+    
+    def analizar_patrones_dimensionales(self, n_max=1000):
+        """Busca patrones interesantes sin afirmar demostración"""
+        print("\nANÁLISIS DE PATRONES DIMENSIONALES:")
+        print("=" * 40)
+        
+        transiciones = collections.defaultdict(int)
+        
+        for n in range(2, n_max + 1):
+            clase_actual = self.clasificar_numero(n)
+            siguiente = self.aplicar_collatz(n)
+            clase_siguiente = self.clasificar_numero(siguiente)
+            
+            transiciones[(clase_actual, clase_siguiente)] += 1
+        
+        print("Transiciones más comunes:")
+        for (origen, destino), count in sorted(transiciones.items(), 
+                                             key=lambda x: x[1], reverse=True)[:5]:
+            print(f"  {origen} -> {destino}: {count} veces")
+        
+        # Análisis de contracción REAL
+        crecimiento_promedio = self.calcular_crecimiento_promedio(n_max)
+        print(f"\nCrecimiento promedio por paso: {crecimiento_promedio:.4f}")
+        
+        if crecimiento_promedio < 1:
+            print("✓ Tendencia contractiva en promedio")
+        else:
+            print("⚠ Tendencia expansiva en promedio")
+    
+    def calcular_crecimiento_promedio(self, n_max):
+        """Calcula el factor de crecimiento promedio"""
+        factores = []
+        for n in range(2, min(n_max, 1000)):
+            siguiente = self.aplicar_collatz(n)
+            factor = siguiente / n
+            factores.append(factor)
+        
+        return np.mean(factores)
+
+# EJECUCIÓN HONESTA
+if __name__ == "__main__":
+    print("ANÁLISIS EXPLORATORIO DE COLLATZ USANDO TDH")
+    print("(Este es un análisis estadístico, NO una demostración)")
+    print("=" * 60)
+    
+    analizador = AnalizadorCollatzHonesto()
+    
+    # Análisis hasta 10,000
+    todo_converge = analizador.analizar_estadisticas(10000)
+    
+    # Análisis de patrones
+    analizador.analizar_patrones_dimensionales(1000)
+    
+    print("\n" + "=" * 60)
+    print("CONCLUSIÓN REAL:")
+    
+    if todo_converge:
+        print("✅ Todos los números hasta 10,000 convergen a 1")
+        print("   Esto sugiere que la conjetura podría ser verdadera")
+        print("   pero NO constituye una demostración matemática.")
+    else:
+        print("❌ Se encontraron números que no convergen en el rango analizado")
+    
+    print("\nRECORDATORIO:")
+    print("Una demostración real requeriría:")
+    print("1. Un teorema general sobre la estructura dimensional")
+    print("2. Una función de Lyapunov que decrece monótonamente") 
+    print("3. Una prueba para todos los números naturales, no solo muestras")

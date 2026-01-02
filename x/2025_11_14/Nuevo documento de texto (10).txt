@@ -1,0 +1,54 @@
+import numpy as np
+
+# --- Constantes del Escenario ---
+v_aquiles = 10.0  # m/s
+v_tortuga = 5.0   # m/s
+d_inicial = 100.0 # m
+ratio_velocidad = v_aquiles / v_tortuga # 2.0
+
+# --- Postulado TDH (Cuantificación) ---
+A_1_minimo = 1.0e-5  # Atomodimensional Mínimo (unidad TDH para el espacio)
+
+# --- Variables de Seguimiento ---
+distancia_total_zenon = d_inicial
+distancia_restante = d_inicial
+paso_actual = d_inicial
+n_pasos_tdh = 1
+
+print("--- 🐢 Simulación TDH vs. Paradoja de Zenón ---")
+print(f"Velocidad de Aquiles: {v_aquiles} m/s | Tortuga: {v_tortuga} m/s")
+print(f"Ventaja Inicial: {d_inicial} m")
+print(f"Atomodimensional Mínimo (A_1): {A_1_minimo} m")
+print("-" * 60)
+
+# El bucle simula los pasos de Zenón, pero con el límite TDH
+while paso_actual > A_1_minimo:
+    # 1. Distancia que Aquiles tiene que recorrer
+    # Esta es la distancia que la tortuga recorrió en el paso anterior
+    paso_actual = distancia_restante / ratio_velocidad
+    
+    # 2. La Tortuga avanza
+    distancia_restante = paso_actual
+    
+    # 3. Aquiles suma la distancia recorrida
+    distancia_total_zenon += paso_actual
+    n_pasos_tdh += 1
+    
+    # Detenemos la simulación si la distancia restante es insignificante
+    if n_pasos_tdh % 10 == 0:
+        print(f"Paso {n_pasos_tdh:<4}: Distancia a recorrer = {paso_actual:.8e} m")
+        
+    # La condición de salida la impone la TDH: no podemos medir o dividir por debajo de A_1
+
+print("-" * 60)
+# Solución Clásica: 200.0 metros (Límite matemático)
+limite_teorico = d_inicial * (ratio_velocidad / (ratio_velocidad - 1))
+
+print(f"Solución Matemática Clásica (Serie Infinita): {limite_teorico:.10f} m")
+print(f"Solución TDH (Serie Finita, Truncada):       {distancia_total_zenon:.10f} m")
+print(f"Número de Pasos TDH Contables (A_1):          {n_pasos_tdh}")
+
+# Verificación de la Tensión: El error entre la TDH y la Matemática
+error_tdh = limite_teorico - distancia_total_zenon
+print(f"Diferencia (Inconmensurabilidad):           {error_tdh:.10e} m")
+print("-" * 60)

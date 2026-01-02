@@ -1,0 +1,92 @@
+
+NIVEL 0 --------------------------------------------------
+N                                (>1N1*)
+
+NIVEL 1 --------------------------------------------------
+NL                               (>4N6*)
+NIVEL 1-1 (Simetría R) Rutas: 1
+
+NIVEL 2 --------------------------------------------------
+NLR                              (>2N3*)
+NIVEL 2-1 (Simetría R) Rutas: 2
+
+NIVEL 3 --------------------------------------------------
+NLRL                             (>16N18*)
+NLRR                             (>1N3*)
+NIVEL 3-1 (Simetría R) Rutas: 3
+
+NIVEL 4 --------------------------------------------------
+NLRLR                            (>8N9*)
+NLRRL                            (>4N18*)
+NLRRR                            (>2N3#)
+NIVEL 4-1 (Simetría R) Rutas: 5
+
+NIVEL 5 --------------------------------------------------
+NLRLRL                           (>52N54*)
+NLRLRR                           (>4N9*)
+NLRRLR                           (>2N9*)
+NLRRRL                           (>16N18#)
+NLRRRR                           (>1N3#)
+NIVEL 5-1 (Simetría R) Rutas: 8
+
+NIVEL 6 --------------------------------------------------
+NLRLRLR                          (>26N27*)
+NLRLRRL                          (>40N54*)
+NLRLRRR                          (>2N9#)
+NLRRLRL                          (>34N54*)
+NLRRLRR                          (>1N9*)
+NLRRRLR                          (>8N9#)
+NLRRRRL                          (>4N18#)
+NLRRRRR                          (>2N3#)
+NIVEL 6-1 (Simetría R) Rutas: 13
+
+NIVEL 7 --------------------------------------------------
+NLRLRLRL                         (>160N162*)
+NLRLRLRR                         (>13N27*)
+NLRLRRLR                         (>20N27*)
+NLRLRRRL                         (>34N54#)
+NLRLRRRR                         (>1N9#)
+NLRRLRLR                         (>17N27*)
+NLRRLRRL                         (>4N54*)
+NLRRLRRR                         (>5N9*)
+NLRRRLRL                         (>52N54#)
+NLRRRLRR                         (>4N9#)
+NLRRRRLR                         (>2N9#)
+NLRRRRRL                         (>16N18#)
+NLRRRRRR                         (>1N3#)
+NIVEL 7-1 (Simetría R) Rutas: 21
+
+NIVEL 8 --------------------------------------------------
+NLRLRLRLR                        (>80N81*)
+NLRLRLRRL                        (>40N162*)
+NLRLRLRRR                        (>20N27#)
+NLRLRRLRL                        (>142N162*)
+NLRLRRLRR                        (>10N27*)
+NLRLRRRLR                        (>17N27#)
+NLRLRRRRL                        (>4N54#)
+NLRLRRRRR                        (>5N9#)
+NLRRLRLRL                        (>52N162*)
+NLRRLRLRR                        (>22N27*)
+NLRRLRRLR                        (>2N27*)
+NLRRLRRRL                        (>16N54*)
+NLRRLRRRR                        (>7N9*)
+NLRRRLRLR                        (>26N27#)
+NLRRRLRRL                        (>40N54#)
+NLRRRLRRR                        (>2N9#)
+NLRRRRLRL                        (>34N54#)
+NLRRRRLRR                        (>1N9#)
+NLRRRRRLR                        (>8N9#)
+NLRRRRRRL                        (>4N18#)
+NLRRRRRRR                        (>2N3#)
+NIVEL 8-1 (Simetría R) Rutas: 34
+
+============================================================
+RESUMEN DE SIMETRÍA:
+NIVEL 1    RpartD: 1        LDD: 0        RDD+LDppart: 1       
+NIVEL 2    RpartD: 2        LDD: 0        RDD+LDppart: 2       
+NIVEL 3    RpartD: 3        LDD: 0        RDD+LDppart: 3       
+NIVEL 4    RpartD: 5        LDD: 1        RDD+LDppart: 6       
+NIVEL 5    RpartD: 8        LDD: 2        RDD+LDppart: 10      
+NIVEL 6    RpartD: 13       LDD: 4        RDD+LDppart: 17      
+NIVEL 7    RpartD: 21       LDD: 7        RDD+LDppart: 28      
+NIVEL 8    RpartD: 34       LDD: 12       RDD+LDppart: 46      

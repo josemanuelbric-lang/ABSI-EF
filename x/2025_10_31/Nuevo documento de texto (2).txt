@@ -1,0 +1,52 @@
+import numpy as np
+
+# --- 1. Parámetros Fundamentales ---
+D = 4.0
+F = 3.0
+N_TDH = 3.8710 # Tensión Maestra en el vacío (sin gravedad fuerte)
+
+# Constantes de la Física Cuántica (para la fórmula dinámica a0)
+LAMBDA_C = 3.86159e-13 # Longitud de onda de Compton del electrón (hbar / me * c)
+
+# --- 2. Ley Estructural (L.E.) de Alpha Inverso ---
+# Formula: alpha_inv = (D^F + F^D) - N * (1 + N/D)
+def calculate_alpha_inverse(N_local):
+    return (D**F + F**D) - N_local * (1 + N_local / D)
+
+# --- 3. Fórmula del Radio de Bohr ---
+# Formula: a0 = alpha_inv * Lambda_C
+def calculate_bohr_radius(alpha_inv):
+    return alpha_inv * LAMBDA_C
+
+# --- SIMULACIÓN DEL VACÍO (Gravedad Cero) ---
+alpha_inv_vacuo = calculate_alpha_inverse(N_TDH)
+a0_vacuo = calculate_bohr_radius(alpha_inv_vacuo)
+Error_Vacuo = (a0_vacuo - 5.29177e-11) / 5.29177e-11 * 100 # Error respecto al valor CODATA
+
+# --- SIMULACIÓN DE CAMPO GRAVITATORIO FUERTE ---
+# Hipótesis: La gravedad reduce la Tensión Maestra N en 1%
+FACTOR_REDUCCION_N = 0.01 
+N_fuerte_gravedad = N_TDH * (1 - FACTOR_REDUCCION_N)
+
+alpha_inv_fuerte = calculate_alpha_inverse(N_fuerte_gravedad)
+a0_fuerte = calculate_bohr_radius(alpha_inv_fuerte)
+
+# --- RESULTADOS ---
+print("--- PRUEBA DE LA TDH: RADIO ATÓMICO EN GRAVEDAD VARIABLE ---")
+print(f"Parámetros TDH base: D={D}, F={F}, N={N_TDH}")
+print("-" * 60)
+
+print("A) RESULTADOS EN EL VACÍO (Sin Gravedad Fuerte):")
+print(f"   Alpha Inverso (TDH): {alpha_inv_vacuo:.4f}")
+print(f"   Radio de Bohr (TDH): {a0_vacuo:.6e} metros")
+print(f"   Error de Precisión: {Error_Vacuo:.2f}%")
+print("-" * 60)
+
+print(f"B) RESULTADOS EN CAMPO GRAVITATORIO FUERTE (N reducido por {FACTOR_REDUCCION_N*100}%):")
+print(f"   Nueva Tensión Maestra (N'): {N_fuerte_gravedad:.4f}")
+print(f"   Alpha Inverso (TDH): {alpha_inv_fuerte:.4f}")
+print(f"   Radio de Bohr (TDH): {a0_fuerte:.6e} metros")
+print("-" * 60)
+
+cambio_porcentual = (a0_fuerte - a0_vacuo) / a0_vacuo * 100
+print(f"CONCLUSIÓN: Cambio porcentual en el Radio: {cambio_porcentual:.4f}%")

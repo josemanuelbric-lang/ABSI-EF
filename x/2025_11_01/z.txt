@@ -1,0 +1,84 @@
+import numpy as np
+import matplotlib.pyplot as plt
+
+# --- 1. Parámetros Fundamentales de la TDH ---
+D = 4.0        # Dimensionalidad
+F = 3.0        # Familias de Materia
+# N ajustada para αs=0.1180 (el valor que busca la consistencia máxima)
+N_AJUSTADA = 3.87092984 
+
+# --- 2. Fórmulas de Predicción de la TDH ---
+
+# 1. Nuclear Fuerte (Alpha_s)
+alpha_s_TDH = (F * (D - N_AJUSTADA)) / ((D + F) - N_AJUSTADA)
+
+# 2. Electromagnética (Alpha^-1)
+alpha_inv_TDH = (D**F + F**D) - N_AJUSTADA * (1 + N_AJUSTADA / D)
+
+# 3. Nuclear Débil (Masa W en GeV)
+MW_TDH = (F**D * D) / N_AJUSTADA
+
+# 4. Jerarquía Gravitacional (E_36) - Usamos la fórmula que predice ~36
+# E_36 ≈ (D * F * (D * F / N)) - (D**3 / N**3)
+E36_TDH = (D * F * (D * F / N_AJUSTADA)) - (D**3 / N_AJUSTADA**3)
+
+# --- 3. Valores Observados de la Física ---
+alpha_s_OBS = 0.1180
+alpha_inv_OBS = 137.036
+MW_OBS = 80.380 # GeV
+E36_OBS = 36.0 # Aproximación para la jerarquía
+
+# --- 4. Preparación de Datos para la Gráfica ---
+categorias = ['Alpha_s', 'Alpha^-1', 'Masa W (GeV)', 'Jerarquía (E_36)']
+tdh_valores = [alpha_s_TDH, alpha_inv_TDH, MW_TDH, E36_TDH]
+obs_valores = [alpha_s_OBS, alpha_inv_OBS, MW_OBS, E36_OBS]
+
+# NOTA: Escalamos Alpha_s y E_36 para que sean visibles junto a los otros
+# Normalizamos los valores grandes (Alpha^-1 y Masa W) y pequeños (Alpha_s) en un rango similar
+# Escala para la gráfica: dividimos Alpha^-1 y Masa W por un factor, y multiplicamos Alpha_s
+factor_alpha_inv = 100
+factor_MW = 100
+factor_alpha_s = 500
+
+tdh_escalados = [alpha_s_TDH * factor_alpha_s, alpha_inv_TDH / factor_alpha_inv, MW_TDH / factor_MW, E36_TDH]
+obs_escalados = [alpha_s_OBS * factor_alpha_s, alpha_inv_OBS / factor_alpha_inv, MW_OBS / factor_MW, E36_OBS]
+
+
+# --- 5. Generación de la Gráfica ---
+
+x = np.arange(len(categorias))  # Posiciones de las categorías
+width = 0.35  # Ancho de las barras
+
+fig, ax = plt.subplots(figsize=(10, 6))
+rects1 = ax.bar(x - width/2, tdh_escalados, width, label='TDH Predicción', color='#3366cc')
+rects2 = ax.bar(x + width/2, obs_escalados, width, label='Valor Observado', color='#ff9900')
+
+# Añadir etiquetas, título y leyenda
+ax.set_ylabel('Valores Escalados (Unidad Dimensional)')
+ax.set_title('Convergencia de las Cuatro Fuerzas Fundamentales según la TDH')
+ax.set_xticks(x)
+ax.set_xticklabels(categorias)
+ax.legend()
+
+# Etiquetas de valor exacto encima de las barras TDH
+def autolabel(rects, original_values):
+    for rect, val in zip(rects, original_values):
+        height = rect.get_height()
+        ax.annotate(f'{val:.4g}',
+                    xy=(rect.get_x() + rect.get_width() / 2, height),
+                    xytext=(0, 3),  # 3 puntos de offset vertical
+                    textcoords="offset points",
+                    ha='center', va='bottom',
+                    fontsize=8)
+
+# Colocamos las etiquetas de los valores originales (no escalados)
+autolabel(rects1, tdh_valores)
+# autolabel(rects2, obs_valores) # Se omite para no saturar el gráfico, pero los valores están en la tabla.
+
+fig.tight_layout()
+plt.show()
+
+print("\n--- Resultados Numéricos No Escalados ---")
+for i in range(len(categorias)):
+    error = abs(tdh_valores[i] - obs_valores[i]) / obs_valores[i] * 100
+    print(f"{categorias[i]:<18}: TDH={tdh_valores[i]:<10.4f} OBS={obs_valores[i]:<10.4f} Error={error:<6.2f}%")

@@ -1,0 +1,89 @@
+import numpy as np
+import matplotlib.pyplot as plt
+
+# --- 1. Parámetros Fundamentales de la TDH ---
+D = 4.0        # Dimensionalidad del Espacio-Tiempo
+F = 3.0        # Familias de Materia (Fermiones)
+N_TDH = 3.8710 # Tensión Maestra en el vacío (Valor cosmológico base)
+
+# Constantes de la Física Cuántica (para la fórmula dinámica a0)
+# Longitud de onda de Compton del electrón (hbar / me * c)
+LAMBDA_C = 3.86159e-13 
+# Valor Aceptado del Radio de Bohr (para calcular el error base)
+A0_OBSERVADO = 5.29177e-11 
+
+# --- 2. Ley Estructural (L.E.) de Alpha Inverso ---
+# Formula: alpha_inv = (D^F + F^D) - N * (1 + N/D)
+def calculate_alpha_inverse(N_local, D=D, F=F):
+    """Calcula el inverso de la constante de estructura fina (alpha^-1) con la TDH."""
+    resistencia_estructural = (D**F) + (F**D)  # 4^3 + 3^4 = 145
+    atenuacion_tension = N_local * (1 + N_local / D)
+    return resistencia_estructural - atenuacion_tension
+
+# --- 3. Fórmula del Radio de Bohr ---
+# Formula: a0 = alpha_inv * Lambda_C
+def calculate_bohr_radius(alpha_inv, lambda_c=LAMBDA_C):
+    """Calcula el Radio de Bohr (a0) usando alpha_inv y la longitud de onda de Compton."""
+    return alpha_inv * lambda_c
+
+# --- SIMULACIÓN DEL VACÍO (Gravedad Cero / N Estandar) ---
+alpha_inv_vacuo = calculate_alpha_inverse(N_TDH)
+a0_vacuo = calculate_bohr_radius(alpha_inv_vacuo)
+error_vacuo = (a0_vacuo - A0_OBSERVADO) / A0_OBSERVADO * 100
+
+# --- SIMULACIÓN DE CAMPO GRAVITATORIO FUERTE ---
+# Hipótesis de Acoplamiento Gravitatorio: La gravedad reduce la Tensión Maestra N en 1%
+FACTOR_REDUCCION_N = 0.01 
+N_fuerte_gravedad = N_TDH * (1 - FACTOR_REDUCCION_N)
+
+alpha_inv_fuerte = calculate_alpha_inverse(N_fuerte_gravedad)
+a0_fuerte = calculate_bohr_radius(alpha_inv_fuerte)
+
+# --- RESULTADOS NUMÉRICOS ---
+print("--- PRUEBA DE LA TDH: RADIO ATÓMICO EN GRAVEDAD VARIABLE ---")
+print(f"Parámetros TDH base: D={D}, F={F}, N={N_TDH}")
+print("-" * 60)
+
+print("A) RESULTADOS EN EL VACÍO (Nivel Base):")
+print(f"   Alpha Inverso (TDH): {alpha_inv_vacuo:.4f}")
+print(f"   Radio de Bohr (TDH): {a0_vacuo:.6e} metros")
+print(f"   Valor Observado (CODATA): {A0_OBSERVADO:.6e} metros")
+print(f"   Error de Precisión: {error_vacuo:.2f}%")
+print("-" * 60)
+
+print(f"B) RESULTADOS EN CAMPO GRAVITATORIO FUERTE (N reducido por {FACTOR_REDUCCION_N*100}%):")
+print(f"   Nueva Tensión Maestra (N'): {N_fuerte_gravedad:.4f}")
+print(f"   Alpha Inverso (TDH): {alpha_inv_fuerte:.4f}")
+print(f"   Radio de Bohr (TDH): {a0_fuerte:.6e} metros")
+print("-" * 60)
+
+cambio_absoluto = a0_fuerte - a0_vacuo
+cambio_porcentual = (a0_fuerte - a0_vacuo) / a0_vacuo * 100
+print(f"CONCLUSIÓN: Tensión reducida -> Alpha Inverso AUMENTA -> Radio AUMENTA")
+print(f"   Cambio absoluto en el Radio: {cambio_absoluto:.6e} metros")
+print(f"   Cambio porcentual en el Radio: {cambio_porcentual:.4f}%")
+
+
+# --- GENERACIÓN DE GRÁFICO (Visualización de la Función) ---
+N_plot = np.linspace(3.7, 4.0, 100) # Rango de N para la gráfica
+alpha_inv_plot = calculate_alpha_inverse(N_plot)
+a0_plot = calculate_bohr_radius(alpha_inv_plot)
+
+fig, ax = plt.subplots(figsize=(10, 6))
+ax.plot(N_plot, a0_plot * 1e11, label=r'$a_0$ en función de $N$', color='blue')
+ax.axhline(A0_OBSERVADO * 1e11, color='green', linestyle='--', label='Valor Observado de $a_0$')
+ax.axvline(N_TDH, color='red', linestyle=':', label=f'$N_{{TDH}} = {N_TDH}$')
+
+# Marcadores para la simulación
+ax.scatter(N_TDH, a0_vacuo * 1e11, color='red', s=50, zorder=5, label='Vacío (N)')
+ax.scatter(N_fuerte_gravedad, a0_fuerte * 1e11, color='orange', s=50, zorder=5, label="Gravedad Fuerte (N')")
+
+
+ax.set_title('Radio de Bohr ($a_0$) vs. Tensión Maestra ($N$)')
+ax.set_xlabel('Tensión Maestra ($N$)')
+ax.set_ylabel(r'Radio de Bohr ($a_0$) $\times 10^{-11}$ metros')
+ax.legend()
+ax.grid(True, linestyle='dotted')
+plt.show()
+
+#

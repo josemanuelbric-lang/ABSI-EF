@@ -1,0 +1,94 @@
+import math
+
+class DimensionTDH:
+    """
+    Representa una Dimensión (Dn) y su Tensión (S(Dn))
+    como una densidad de energía normalizada (Omega).
+    """
+    def __init__(self, n, nombre, tension_omega):
+        self.n = n
+        self.nombre = nombre
+        self.tension = tension_omega  # Valor S(Dn)
+
+    def __repr__(self):
+        return f"S(D{self.n}) [{self.nombre}]: {self.tension*100:.2f}%"
+
+class UniversoTDH:
+    """
+    Comprueba la Ecuación de Acoplamiento Jerárquico (Postulado 7)
+    usando datos cosmológicos reales (Omega).
+    """
+    def __init__(self, S_D0_Vacuo, S_D3_Materia):
+        print("--- INICIALIZANDO UNIVERSO TDH CON DATOS OBSERVADOS ---")
+        
+        # S(D0) -> Tensión del Vacío (Energía Oscura, Lambda)
+        self.D0 = DimensionTDH(0, "Vacío/E. Oscura", S_D0_Vacuo)
+        
+        # S(D3) -> Tensión de Materia (Materia Oscura + Bariones)
+        self.D3 = DimensionTDH(3, "Materia Total", S_D3_Materia)
+        
+        # S(D1) -> Tensión del Espacio (Gravedad/Curvatura)
+        # Este es el valor que vamos a PREDECIR.
+        self.D1 = DimensionTDH(1, "Espacio/Curvatura", 0.0) # Inicializa en 0
+        
+        print(f"  DATO: {self.D0}")
+        print(f"  DATO: {self.D3}")
+
+    def comprobar_equilibrio_analitico(self):
+        """
+        Aplica la Ecuación de Acoplamiento Jerárquico (TDH):
+        S(D1) = 1 - S(D3) - S(D0)
+        
+        Esto comprueba si la Tensión del Espacio (S_D1) es 
+        correctamente predicha por la Tensión del Vacío (S_D0) 
+        y la Tensión de la Materia (S_D3).
+        """
+        print("\n--- EJECUTANDO COMPROBACIÓN DE EQUILIBRIO (POSTULADO 7) ---")
+        print("  Ecuación Analítica: S(D1) = 1 - S(D3) - S(D0)")
+
+        # Obtenemos los números
+        s_d0 = self.D0.tension
+        s_d3 = self.D3.tension
+        
+        # Calculamos la predicción
+        s_d1_predicha = 1.0 - s_d3 - s_d0
+        
+        # Actualizamos el valor de nuestra Dimensión D1
+        self.D1.tension = s_d1_predicha
+        
+        print(f"  Cálculo: S(D1) = 1.0 - {s_d3} - {s_d0}")
+        print(f"  PREDICCIÓN TDH: {self.D1}")
+
+    def interpretar_resultado(self):
+        """
+        Compara la predicción con la realidad observada.
+        """
+        print("\n--- INTERPRETACIÓN DEL RESULTADO ---")
+        prediccion = self.D1.tension
+        
+        # Comprobamos si el resultado es cercano a cero
+        if math.isclose(prediccion, 0.0, abs_tol=0.01):
+            print("  ÉXITO: La predicción S(D1) es ~0.0.")
+            print("  Esto coincide con la observación de un UNIVERSO PLANO.")
+            print("\n  CONCLUSIÓN TDH: La Ecuación de Acoplamiento Jerárquico funciona.")
+            print(f"  La Tensión Positiva S(D0) [{self.D0.tension*100:.1f}%] y la Tensión")
+            print(f"  'Atractiva' S(D3) [{self.D3.tension*100:.1f}%] están en perfecto equilibrio,")
+            print("  resultando en una Tensión Espacial S(D1) nula.")
+        else:
+            print(f"  FALLO: La predicción S(D1) es {prediccion:.4f}.")
+            print("  Esto contradeciría la observación de un universo plano.")
+
+# --- EJECUCIÓN DE LA COMPROBACIÓN ---
+
+# 1. Definimos "Los Números" (Datos Reales del Satélite Planck)
+tension_observada_vacuo = 0.685   # S(D0)
+tension_observada_materia = 0.315  # S(D3)
+
+# 2. Creamos el universo con estos datos
+mi_universo = UniversoTDH(tension_observada_vacuo, tension_observada_materia)
+
+# 3. Ejecutamos la "prueba"
+mi_universo.comprobar_equilibrio_analitico()
+
+# 4. Vemos la conclusión
+mi_universo.interpretar_resultado()

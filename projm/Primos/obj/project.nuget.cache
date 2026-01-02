@@ -1,0 +1,10 @@
+{
+  "version": 2,
+  "dgSpecHash": "OvLMxlXWYx4=",
+  "success": true,
+  "projectFilePath": "D:\\Pro\\Primos\\Primos.fsproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\bric\\.nuget\\packages\\fsharp.core\\10.0.101\\fsharp.core.10.0.101.nupkg.sha512"
+  ],
+  "logs": []
+}

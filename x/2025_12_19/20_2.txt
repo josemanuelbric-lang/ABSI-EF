@@ -1,0 +1,29 @@
+import numpy as np
+import matplotlib.pyplot as plt
+from sympy import isprime
+
+# 1. Configuración: Queremos que la distancia Pico-Valle sea 12
+k_objetivo = 12 
+f_exacta = np.pi / k_objetivo  # Nueva frecuencia armónica
+
+inicio, fin = 1, 1024
+x = np.arange(inicio, fin)
+centro_y, amplitud = 3.5, 1.5
+vibracion = centro_y + amplitud * np.sin(x * f_exacta)
+
+# 2. Filtrar Primos
+primos_x = np.array([i for i in x if isprime(i)])
+primos_y = centro_y + amplitud * np.sin(primos_x * f_exacta)
+
+# 3. Clasificación
+picos = primos_x[primos_y > 4.8]
+valles = primos_x[primos_y < 2.2]
+
+print(f"--- RESULTADOS CON FRECUENCIA ARMÓNICA (f = {f_exacta:.4f}) ---")
+print(f"Primos en Picos Extremos: {list(picos)}")
+print(f"Primos en Valles Extremos: {list(valles)}")
+
+# 4. Verificación de la constante 12
+if len(picos) > 1:
+    dif_picos = np.diff(picos)
+    print(f"\nDistancias entre picos: {dif_picos}")

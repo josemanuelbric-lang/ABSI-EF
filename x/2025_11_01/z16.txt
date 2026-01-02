@@ -1,0 +1,49 @@
+import numpy as np
+import math
+
+# --- 1. Parámetros Fundamentales de la TDH ---
+D = 4.0      # Dimensionalidad del Espacio-Tiempo
+F = 3.0      # Familias de Materia (Quarks/Leptones)
+N = 3.8710   # Tensión Maestra (de la observación cosmológica z)
+
+# --- 2. Constante Observada ---
+OBS_ALPHA_S = 0.118 # Valor de alpha_s observado a la escala del Bosón Z
+
+# --- 3. Fórmula de la TDH ---
+# 1/alpha_s = (1/pi) * (D - N/F) * ln(N/F)
+
+# Cálculo de los términos intermedios
+termino_N_F = N / F
+termino_D_N_F = D - termino_N_F
+
+# Cálculo final de la inversa de Alpha_s (1/alpha_s_TDH)
+try:
+    inverso_alpha_s_TDH = (1 / math.pi) * termino_D_N_F * math.log(termino_N_F)
+except ValueError as e:
+    print(f"Error en el cálculo: {e}. Asegúrate de que N/F > 0 para el logaritmo.")
+    inverso_alpha_s_TDH = None
+
+# --- 4. Verificación y Comparación ---
+
+inverso_alpha_s_OBS = 1 / OBS_ALPHA_S
+
+print("=" * 60)
+print("CÁLCULO DE LA CONSTANTE DE ACOPLAMIENTO FUERTE ($\mathbf{1/\alpha_s}$) SEGÚN LA TDH")
+print("=" * 60)
+print(f"Parámetros TDH usados: D={D}, F={F}, N={N}")
+print("-" * 60)
+
+if inverso_alpha_s_TDH is not None:
+    print(f"1. Valor Inverso Calculado (TDH): 1/αs ≈ {inverso_alpha_s_TDH:.4f}")
+    print(f"2. Valor Inverso Observado (OBS): 1/αs ≈ {inverso_alpha_s_OBS:.4f}")
+    print("-" * 60)
+
+    # Evaluación de la corrección
+    desviacion_porcentual = abs(inverso_alpha_s_TDH - inverso_alpha_s_OBS) / inverso_alpha_s_OBS * 100
+
+    if desviacion_porcentual < 1.0:
+        print(f"✅ La fórmula es **correcta** con los parámetros dados.")
+        print(f"Desviación: {desviacion_porcentual:.4f}% (< 1.0% de error).")
+    else:
+        print(f"❌ La fórmula es **incorrecta** o los parámetros no son precisos para este valor observado.")
+        print(f"Desviación: {desviacion_porcentual:.4f}% (diferencia significativa).")

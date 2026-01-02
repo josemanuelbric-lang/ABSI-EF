@@ -1,0 +1,38 @@
+import numpy as np
+from scipy.linalg import eigvalsh
+
+# --- 1. Estado Inicial (Atomimensional Puro) ---
+# rho_puro = [[0.5, -0.5j], [0.5j, 0.5]] (S=0, máxima coherencia)
+rho_inicial = np.array([[0.5, -0.5j], [0.5j, 0.5]], dtype=complex)
+
+# --- 2. Simulación de la Decoherencia Temporal ---
+t_simulacion = 1.0  # Tiempo transcurrido
+tau_D = 0.1         # Tiempo de Decoherencia (rápida interacción con el ambiente)
+
+# La coherencia (elemento fuera de la diagonal, c) decae exponencialmente.
+c_inicial = rho_inicial[0, 1]
+
+# Coherencia Reducida por el ambiente
+c_final = c_inicial * np.exp(-t_simulacion / tau_D)
+
+# --- 3. El Operador de Densidad Final (Mezcla) ---
+# La decoherencia solo afecta los términos fuera de la diagonal (coherencia)
+rho_final = np.array([[0.5, c_final], 
+                      [np.conj(c_final), 0.5]], dtype=complex)
+
+# --- 4. Entropía Dimensional Final ---
+eigenvalores_final = eigvalsh(rho_final)
+# La entropía final será cercana a 1.0 (Vacío Dimensional)
+log2_eigen = np.ma.log2(eigenvalores_final).filled(0)
+entropia_final = -np.sum(eigenvalores_final * log2_eigen)
+
+print("### Simulación de Decoherencia Dimensional ###")
+print(f"1. Entropía Inicial (Partícula Pura): 0.00 bits")
+print(f"   Coherencia Inicial (c): {c_inicial:.4f}")
+print("-" * 50)
+print(f"2. Decoherencia (t={t_simulacion}, tau_D={tau_D})")
+print(f"   Coherencia Reducida (c_final): {c_final:.4f}")
+print(f"   Matriz Rho Final (Rho_Mezcla):\n{np.round(rho_final.real, 4)}") # Solo mostramos la parte real para claridad
+
+print("-" * 50)
+print(f"3. Entropía Final (Vacío Dimensional): {entropia_final:.4f} bits")

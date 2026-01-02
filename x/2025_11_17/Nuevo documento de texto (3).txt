@@ -1,0 +1,63 @@
+from sympy import isprime, factorint
+
+def secuencia_special(n_terms=10):
+    """Genera la secuencia que descubriste"""
+    sequence = [2]
+    for i in range(1, n_terms):
+        next_val = 4 * sequence[-1] + 2
+        sequence.append(next_val)
+    return sequence
+
+def analizar_primos_en_secuencia():
+    """Analiza la densidad de primos en tu secuencia"""
+    secuencia = secuencia_special(20)
+    primos_encontrados = []
+    
+    print("SECUENCIA ESPECIAL Y SUS PRIMOS:")
+    print("n\tValor\t¿Primo?\tFactores")
+    print("-" * 40)
+    
+    for i, num in enumerate(secuencia, 1):
+        es_primo = isprime(num)
+        factores = factorint(num) if not es_primo else {num: 1}
+        
+        print(f"{i}\t{num}\t{es_primo}\t{factores}")
+        
+        if es_primo:
+            primos_encontrados.append(num)
+    
+    print(f"\nPRIMOS ENCONTRADOS: {primos_encontrados}")
+    print(f"DENSIDAD: {len(primos_encontrados)}/{len(secuencia)} = {len(primos_encontrados)/len(secuencia):.2%}")
+    
+    return primos_encontrados
+
+# Análisis adicional de la estructura modular
+def analizar_estructura_modular():
+    """Analiza patrones modulares en la secuencia"""
+    secuencia = secuencia_special(15)
+    
+    print("\nANÁLISIS MODULAR:")
+    print("n\tValor\tmod 3\tmod 5\tmod 7")
+    print("-" * 35)
+    
+    for i, num in enumerate(secuencia, 1):
+        print(f"{i}\t{num}\t{num % 3}\t{num % 5}\t{num % 7}")
+
+# EJECUCIÓN
+if __name__ == "__main__":
+    print("ANÁLISIS DE TU DESCUBRIMIENTO SOBRE COLLATZ")
+    print("=" * 50)
+    
+    primos = analizar_primos_en_secuencia()
+    analizar_estructura_modular()
+    
+    # Demostración de la conexión con 1/5
+    print("\nCONEXIÓN CON 1/5 EN BINARIO:")
+    secuencia = secuencia_special(6)
+    for num in secuencia:
+        binario = bin(num)[2:]
+        print(f"{num} = {binario}₂")
+        
+        # Verificar relación con 1/5
+        relacion = num / (num + 1)  # ≈ 1/5 para grandes n
+        print(f"  {num}/{num+1} ≈ {relacion:.10f} (1/5 = 0.2000000000)")

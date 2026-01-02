@@ -1,0 +1,66 @@
+#jose manuel Briceno Mendoza
+import time
+import random
+
+class ObjetoEF:
+    def __init__(self, p, v):
+        self.p = p
+        self.v = v
+        self.densidad = v / p
+
+def resolver_mochila_absi_con_descarte(objetos, capacidad):
+    # 1. Ordenar por Densidad: Define el "Eje de Simetría" de la solución
+    objetos.sort(key=lambda x: x.densidad, reverse=True)
+    
+    mejor_valor = 0
+    nodos_activos = [(0, 0, "N")] # (peso, valor, ruta)
+    total_combinaciones_posibles = 1
+
+    print(f"{'Nivel':<6} | {'Rutas Vivas':<12} | {'Combinaciones Totales':<25} | {'Espacio Descartado (%)':<20}")
+    print("-" * 95)
+
+    for i, obj in enumerate(objetos):
+        proximos = []
+        total_combinaciones_posibles *= 2 # Crecimiento exponencial del universo
+        
+        for peso_act, valor_act, ruta in nodos_activos:
+            # Ruta R: Inclusión (Convergencia)
+            if peso_act + obj.p <= capacidad:
+                nv = valor_act + obj.v
+                proximos.append((peso_act + obj.p, nv, ruta + "R"))
+                if nv > mejor_valor: mejor_valor = nv
+            
+            # Ruta L: Exclusión (Divergencia)
+            proximos.append((peso_act, valor_act, ruta + "L"))
+        
+        # Poda ABSI: Aquí el sistema "asfixia" el error matemático
+        if len(proximos) > 500:
+            proximos.sort(key=lambda x: x[1], reverse=True)
+            proximos = proximos[:500]
+        
+        nodos_activos = proximos
+        
+        # Cálculo del Espacio Descartado (Uso de la variable corregida)
+        descartados_en_este_paso = total_combinaciones_posibles - len(nodos_activos)
+        porcentaje_descarte = (descartados_en_este_paso / total_combinaciones_posibles) * 100
+        
+        # Imprimir cada 10 niveles para ver el colapso del espacio
+        if (i + 1) % 10 == 0 or i == len(objetos) - 1:
+            print(f"{i+1:<6} | {len(nodos_activos):<12} | {total_combinaciones_posibles:<25,} | {porcentaje_descarte:.14f}%")
+
+    return mejor_valor, total_combinaciones_posibles
+
+# --- PRUEBA MAESTRA PARA VIXRA ---
+random.seed(42)
+n_objetos = 1024
+objetos_prueba = [ObjetoEF(random.randint(1, 20), random.randint(10, 100)) for _ in range(n_objetos)]
+capacidad_prueba = 100
+
+start = time.perf_counter()
+resultado, universo_total = resolver_mochila_absi_con_descarte(objetos_prueba, capacidad_prueba)
+end = time.perf_counter()
+
+print("-" * 95)
+print(f"RESULTADO FINAL (Atractor): {resultado}")
+print(f"Universo total de soluciones posibles (2^50): {universo_total:,}")
+print(f"Tiempo de ejecución ABSI-EF: {end - start:.6f} seg")

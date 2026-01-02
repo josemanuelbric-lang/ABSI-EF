@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<linker>
+  <assembly fullname="NodoCollatz">
+    <resource name="FSharpSignatureData.NodoCollatz" action="remove"></resource>
+    <resource name="FSharpSignatureCompressedData.NodoCollatz" action="remove"></resource>
+    <resource name="FSharpSignatureDataB.NodoCollatz" action="remove"></resource>
+    <resource name="FSharpSignatureCompressedDataB.NodoCollatz" action="remove"></resource>
+    <resource name="FSharpOptimizationData.NodoCollatz" action="remove"></resource>
+    <resource name="FSharpOptimizationCompressedData.NodoCollatz" action="remove"></resource>
+    <resource name="FSharpOptimizationDataB.NodoCollatz" action="remove"></resource>
+    <resource name="FSharpOptimizationCompressedDataB.NodoCollatz" action="remove"></resource>
+    <resource name="FSharpOptimizationInfo.NodoCollatz" action="remove"></resource>
+    <resource name="FSharpSignatureInfo.NodoCollatz" action="remove"></resource>
+  </assembly>
+</linker>

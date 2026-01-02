@@ -1,0 +1,13 @@
+import numpy as np
+
+# --- Constantes ---
+C = 24.8327
+M_e = 0.51099895 * 10**(-3) # Masa del electrón en GeV
+M_Planck = 1.22 * 10**19    # Masa de Planck (GeV)
+
+# --- Cálculo del Factor de Acoplamiento de Planck (F_Planck) ---
+F_Planck = M_Planck / (M_e * (C ** 16))
+
+print("--- ⚖️ Factor de Acoplamiento de la Gravedad (TDH) ---")
+print(f"| Factor de Acoplamiento F_Planck (N=16): {F_Planck:.5f}")
+print("----------------------------------------------------------")

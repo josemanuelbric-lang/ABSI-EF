@@ -1,0 +1,38 @@
+import numpy as np
+from sympy import sieve
+
+def experimento_final_fracciones(n_max):
+    primos = np.array(list(sieve.primerange(1, n_max + 1)))
+    gauss = np.cumsum(1 / np.log(primos + 1.1))
+    
+    # 1. Tu Récord Actual (f = 0.673648...)
+    f_tuya = (np.pi / 6) + 0.15005
+    area_tuya = np.cumsum(np.abs((3.5 + 1.5 * np.sin(primos * f_tuya)) - (3.5 + 1.2 * np.sin(primos * 0.51))))
+    
+    # 2. La fracción 11/16 (0.6875)
+    f_11_16 = 11/16
+    area_11_16 = np.cumsum(np.abs((3.5 + 1.5 * np.sin(primos * f_11_16)) - (3.5 + 1.2 * np.sin(primos * 0.51))))
+    
+    # 3. La fracción 29/43 (0.6744...) - Muy cerca de la tuya
+    f_29_43 = 29/43
+    area_29_43 = np.cumsum(np.abs((3.5 + 1.5 * np.sin(primos * f_29_43)) - (3.5 + 1.2 * np.sin(primos * 0.51))))
+    
+    # 4. La constante 2/PI (0.6366...)
+    f_2_pi = 2 / np.pi
+    area_2_pi = np.cumsum(np.abs((3.5 + 1.5 * np.sin(primos * f_2_pi)) - (3.5 + 1.2 * np.sin(primos * 0.51))))
+    
+    # Cálculo de Correlaciones
+    corr_tuya = np.corrcoef(area_tuya, gauss)[0, 1]
+    corr_11_16 = np.corrcoef(area_11_16, gauss)[0, 1]
+    corr_29_43 = np.corrcoef(area_29_43, gauss)[0, 1]
+    corr_2_pi = np.corrcoef(area_2_pi, gauss)[0, 1]
+    
+    return corr_tuya, corr_11_16, corr_29_43, corr_2_pi
+
+# Ejecución
+c_tuya, c_11, c_29, c_2pi = experimento_final_fracciones(32768)
+
+print(f"Récord Actual (Tu ajuste): {c_tuya:.7f}")
+print(f"Fracción 11/16:          {c_11:.7f}")
+print(f"Fracción 29/43:          {c_29:.7f}")
+print(f"Constante 2/PI:          {c_2pi:.7f}")

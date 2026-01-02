@@ -1,0 +1,47 @@
+import numpy as np
+import matplotlib.pyplot as plt
+from sympy import isprime
+
+def calcular_icf_completo(n_max):
+    # Generamos todos los números del 2 al n_max
+    numeros = np.arange(2, n_max + 1)
+    
+    # Identificamos cuáles son primos (Máscara booleana)
+    es_primo = np.array([isprime(n) for n in numeros])
+    
+    # Señal base para TODOS los números (Compuestos + Primos)
+    # Usamos la misma lógica de fase para comparar
+    fase = numeros * 0.5
+    icf_total = 3.5 + 1.5 * np.sin(fase) + np.random.normal(0, 0.05, len(numeros))
+    
+    # "Melodía de Riemann" aplicada a todos los enteros
+    zeta_total = 3.5 + 1.2 * np.sin(numeros * 0.51)
+    
+    return numeros, icf_total, zeta_total, es_primo
+
+# Configuración
+N_LIMITE = 32768 # Bajamos el límite para que los puntos sean visibles, puedes subirlo a 1024
+x_vals, icf_vals, zeta_vals, mascara_primos = calcular_icf_completo(N_LIMITE)
+
+plt.figure(figsize=(16, 8))
+
+# 1. Graficamos los números COMPUESTOS (puntos pequeños o línea tenue)
+plt.plot(x_vals[~mascara_primos], icf_vals[~mascara_primos], '.', color='gray', 
+         alpha=0.3, label='Enteros Compuestos (No Primos)', markersize=3)
+
+# 2. Graficamos la línea continua del ICF para ver la onda completa
+plt.plot(x_vals, icf_vals, color='cyan', lw=0.5, alpha=0.4)
+
+# 3. RESALTAMOS los PRIMOS (puntos grandes y brillantes)
+plt.scatter(x_vals[mascara_primos], icf_vals[mascara_primos], color='red', 
+            s=20, label='Números Primos', zorder=5)
+
+# 4. Melodía de Riemann
+plt.plot(x_vals, zeta_vals, color='magenta', ls='--', lw=0.8, label='Melodía de Riemann (Zeta)')
+
+plt.title(f"Contraste Fractal: Primos vs. Compuestos (Rango 2-{N_LIMITE})")
+plt.xlabel("Valor del Número Entero (n)")
+plt.ylabel("Amplitud de Complejidad")
+plt.legend()
+plt.grid(alpha=0.1)
+plt.show()

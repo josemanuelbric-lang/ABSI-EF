@@ -1,0 +1,77 @@
+import numpy as np
+
+# --- 1. Definición de Constantes Físicas Reales (Unidades SI) ---
+
+# Estos son los 'inputs' fundamentales de tu teoría
+G_newton = 6.674e-11   # Constante Gravitacional
+c_luz = 2.998e8        # Velocidad de la Luz
+h_barra = 1.054e-34    # Constante de Planck reducida (h / 2pi)
+
+# --- 2. Formalización TDH: Calcular KAPPA y N ---
+
+def calcular_kappa_planck():
+    """Calcula KAPPA (Tensión Universal) basado en la Densidad de Planck."""
+    # Densidad de Planck = c^7 / (hbar * G^2)
+    kappa_planck = (c_luz**7) / (h_barra * G_newton**2)
+    return kappa_planck
+
+def obtener_geometria_N(fuerza):
+    """Obtiene el valor de N basado en la fuerza (Hipótesis TDH)."""
+    # Esta es una asunción CRÍTICA que debe ser probada por TDH.
+    # Usamos N=3 para la fuerza fuerte (ej. ligada a la simetría SU(3)).
+    if fuerza == "Fuerte":
+        return 3  
+    elif fuerza == "EM":
+        return 2  # Usamos N=2 (ligada a la simetría U(1))
+    else:
+        return 0
+
+# --- 3. Ecuación Analítica Predictiva (TDH) ---
+
+def h_predecir_constante_g(kappa, N):
+    """
+    Fórmula de Predicción: g = h(kappa, N)
+    
+    Hipótesis Rigurosa: La constante g (adimensional) se obtiene
+    dividiendo la Tensión (kappa) por la escala de Planck apropiada
+    y atenuándola por la geometría (N).
+    
+    Esta es la parte más especulativa: se requiere una fórmula DEDUCIDA.
+    Usamos una fórmula de 'orden de magnitud'.
+    """
+    if N == 0:
+        return 0.0
+
+    # Simplificación: g se calcula como la raíz N-ésima de la Tensión normalizada.
+    # Esto es solo un modelo de ejemplo.
+    g = np.cbrt(kappa * (h_barra / (c_luz**5)) ) / N # Una fórmula que da un número pequeño
+
+    return g
+
+# --- 4. Ejecución y Predicción ---
+
+# 1. Calcular KAPPA real
+KAPPA_real = calcular_kappa_planck()
+print(f"## ⚙️ Predicción de Constantes Reales (Modelo TDH) ##")
+print(f"Tensión Universal KAPPA (Densidad de Planck): {KAPPA_real:.2e} J/m^3")
+print("-" * 50)
+
+# 2. Predecir la Constante de Acoplamiento Fuerte (g_s)
+N_fuerte = obtener_geometria_N("Fuerte")
+g_fuerte_predicha = h_predecir_constante_g(KAPPA_real, N_fuerte)
+
+print(f"**Predicción para la Fuerza Fuerte (N={N_fuerte}):**")
+print(f"  g_Fuerte_predicha: {g_fuerte_predicha:.5f}")
+
+# 3. Predecir la Constante de Acoplamiento EM (g_e)
+N_em = obtener_geometria_N("EM")
+g_em_predicha = h_predecir_constante_g(KAPPA_real, N_em)
+
+print(f"**Predicción para la Fuerza EM (N={N_em}):**")
+print(f"  g_EM_predicha: {g_em_predicha:.5f}")
+
+# 4. Comparación con la Realidad
+print("-" * 50)
+print("Valores Reales (Aprox. en la escala de energía adecuada):")
+print("  g_Fuerte (Real): ~1.0 a 0.1")
+print("  g_EM (Real):     ~0.3")

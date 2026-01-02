@@ -1,0 +1,61 @@
+def obtener_componentes_binarias(n):
+    """
+    Descompone un número en sus potencias de 2 (componentes binarias).
+    Ej: 22 -> [16, 4, 2]
+    """
+    if n <= 0 or n % 2 != 0:
+        return []
+    
+    componentes = []
+    i = 0
+    while (1 << i) <= n:
+        # Si el bit i-ésimo está encendido, es una componente binaria.
+        if (n >> i) & 1:
+            componentes.append(1 << i)
+        i += 1
+    return componentes
+
+def probar_identidad_tdh_simetria(E_par):
+    """
+    Prueba la identidad algebraica: Suma de k_i == k_total.
+    
+    Identidad: Σ(2^xi / 2) = E_par / 2
+    """
+    if E_par % 2 != 0 or E_par <= 0:
+        return "Error: E_par debe ser un número par positivo."
+
+    # 1. Obtener las Dimensiones Binarias (2^xi)
+    dimensiones_binarias = obtener_componentes_binarias(E_par)
+    
+    # 2. Calcular la Suma de los Centros (Σ ki)
+    suma_k_i = 0
+    k_i_lista = []
+    
+    for dim in dimensiones_binarias:
+        k_i = dim / 2
+        suma_k_i += k_i
+        k_i_lista.append(k_i)
+        
+    # 3. Calcular el Centro Total (k_total)
+    k_total = E_par / 2
+    
+    # 4. Verificación y Resultados
+    
+    es_igual = (suma_k_i == k_total)
+    
+    print("-" * 50)
+    print(f"Número Par (E_par): {E_par}")
+    print(f"Dimensiones Binarias (2^xi): {dimensiones_binarias}")
+    print(f"Centros Individuales (k_i): {k_i_lista}")
+    print(f"Suma de los Centros (Σ k_i): {suma_k_i}")
+    print(f"Centro Total (k_total = E_par / 2): {k_total}")
+    print("-" * 50)
+    
+    if es_igual:
+        print(f"✅ Identidad TDH-TN: $\\sum k_i = k_{{total}}$ es **VERDADERA**.")
+        print("Esto confirma la **Conservación de la Simetría Central**.")
+    else:
+        print("❌ ¡La identidad TDH-TN falló! (Contradicción algebraica fundamental).")
+        
+    return es_igual
+probar_identidad_tdh_simetria(1024)

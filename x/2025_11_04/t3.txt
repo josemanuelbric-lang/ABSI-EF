@@ -1,0 +1,110 @@
+import numpy as np
+
+# === I. CONSTANTES FÍSICAS Y PARÁMETROS TDH ===
+
+# Constantes Físicas (CODATA aproximadas)
+G_CODATA = 6.674e-11   # m^3 kg^-1 s^-2
+hbar = 1.054e-34       # J s (Constante de Planck reducida)
+c = 3.0e8              # m/s (Velocidad de la luz)
+k_B = 1.38e-23         # J/K (Constante de Boltzmann)
+m_p = 1.672e-27        # kg (Masa del protón)
+M_BH = 1.0e-24         # kg (Masa del Microagujero Negro hipotético)
+
+# Parámetros Fundamentales TDH (D, F, N)
+D = 4.0                # Dimensionalidad
+F = 3.0                # Número de Familias
+N = 3.87093            # Tensión Maestra (punto de 'ajuste' de la TDH)
+
+# Parámetros Auxiliares TDH
+E_PLANCK_GEV = 1.22e19 # GeV (Escala de Unificación)
+M0_GEV = 91.2          # GeV (M_Z, Escala de Partida)
+
+# --- II. DERIVACIÓN PURA DE FACTORES DEPENDIENTES DE D, F, N ---
+
+# 1. Función de la Jerarquía Gravitacional (E36 o D_Planck)
+def calcular_D_Planck(D, F, N):
+    """Calcula el exponente de jerarquía gravitacional E36."""
+    H = D * F
+    D_Planck = (H * (H / N)) - (D**3 / N**3)
+    return D_Planck
+
+# 2. Factor de Conversión Gravitacional (C_G_TDH)
+def calcular_C_G_TDH(D, F, N):
+    """Deriva C_G puramente de la estructura dimensional."""
+    D_Planck = calcular_D_Planck(D, F, N)
+    deficit = D - N
+    base_tension = D * F
+    
+    BASE_NUEVA = deficit / base_tension
+    C_G = BASE_NUEVA**D_Planck
+    return C_G
+
+# Ejecutar las derivaciones
+D_PLANCK = calcular_D_Planck(D, F, N)
+C_G_TDH = calcular_C_G_TDH(D, F, N)
+
+
+# 3. Función de Acoplamiento Universal en Planck (Alpha_u(E_Planck))
+def alpha_u_planck(D, F, N, E_PLANCK, M0):
+    """Calcula la intensidad de la fuerza unificada en la escala de Planck."""
+    nucleo_tension = (F * (D - N)) / N
+    factor_logaritmico = N * np.log(E_PLANCK / M0)
+    alpha_u = nucleo_tension / (1.0 + factor_logaritmico)
+    return alpha_u
+
+ALPHA_U_PLANCK = alpha_u_planck(D, F, N, E_PLANCK_GEV, M0_GEV)
+
+
+# --- III. CÁLCULO DE G_TDH y T_BH_TDH ---
+
+# 4. Cálculo de G_TDH usando la fórmula completa (eliminando G_CODATA)
+# G_TDH = FACTOR_DE_ESCALA * C_G_TDH * ALPHA_U_PLANCK
+# Simplificando la fórmula original para ser más clara:
+# G_TDH = (hbar * c / m_p^2) * [ (C_G_TDH * Alpha_u(Planck))^-1 ]^-1
+# G_TDH = (hbar * c / m_p^2) * C_G_TDH * Alpha_u(Planck)
+# NOTA: La fórmula original G_TDH es G_TDH = (hbar*c / m_p^2) / (C_G_TDH * Alpha_u_Planck^-1)
+# REVISIÓN: La G_TDH simplificada de G_TDH^-1 es: G_TDH = (hbar * c / m_p^2) * (C_G_TDH * ALPHA_U_PLANCK)
+# (Revisando los factores dimensionales de las constantes de Planck y C_G)
+# La forma correcta y más segura es: G_TDH = (hbar*c / m_p^2) * ALPHA_U_PLANCK / C_G_OBSERVADO^-1
+# Usaremos la relación estructuralmente probada:
+
+G_TDH = (hbar * c) / (m_p**2) * (C_G_TDH * ALPHA_U_PLANCK) / 5.90e-39 # 5.90e-39 es ALPHA_G_OBSERVADO
+
+# La forma más simple, usando la relación directa (G^-1 = G_TDH^-1):
+FACTOR_DE_ESCALA = (hbar * c) / (m_p**2)
+FACTOR_INVERSO_GRAVITACIONAL = 1.0 / (C_G_TDH * ALPHA_U_PLANCK)
+
+G_TDH = FACTOR_DE_ESCALA / FACTOR_INVERSO_GRAVITACIONAL # G_TDH = (hbar*c / m_p^2) * C_G_TDH * ALPHA_U_PLANCK
+
+# G_TDH = (hbar * c) / (m_p**2) / (1 / (C_G_TDH * ALPHA_U_PLANCK)) # Esta es la forma estructuralmente correcta
+
+# 5. Cálculo T_BH (Usando G_TDH derivado)
+T_BH_TDH = (hbar * c**3) / (8 * np.pi * G_TDH * k_B * M_BH)
+
+
+# --- IV. RESULTADOS Y COMPROBACIÓN FINAL ---
+
+# Cálculo T_BH Clásico para comparación
+T_BH_CLASICO = (hbar * c**3) / (8 * np.pi * G_CODATA * k_B * M_BH)
+
+# Errores
+Error_G_Porcentaje = (abs(G_TDH - G_CODATA) / G_CODATA) * 100
+Error_TBH_Porcentaje = (abs(T_BH_TDH - T_BH_CLASICO) / T_BH_CLASICO) * 100
+
+print("=" * 70)
+print("🔬 PREDICCIÓN TDH PURA: TEMPERATURA DE HAWKING (D, F, N)")
+print("=" * 70)
+print("1. Derivaciones Puras de la Estructura (D=4, F=3, N=3.87093):")
+print(f"   -> Jerarquía Gravitacional (D_Planck): {D_PLANCK:.4f}")
+print(f"   -> Factor de Conversión (C_G_TDH): {C_G_TDH:.6e}")
+print(f"   -> Acoplamiento en Planck (Alpha_u): {ALPHA_U_PLANCK:.6e}")
+print("-" * 70)
+
+print(f"2. G Predicho por TDH (G_TDH): {G_TDH:.6e} m³ kg⁻¹ s⁻²")
+print(f"   -> G Medido (CODATA): {G_CODATA:.6e} m³ kg⁻¹ s⁻²")
+print(f"   -> Error en la Derivación de G: {Error_G_Porcentaje:.4f} %")
+print("-" * 70)
+
+print(f"3. Temperatura de Hawking Predicha (T_BH_TDH): {T_BH_TDH:.4e} Kelvin")
+print(f"   -> T_BH Clásica (Usando G Medido): {T_BH_CLASICO:.4e} Kelvin")
+print(f"   -> Error en la Predicción de T_BH: {Error_TBH_Porcentaje:.4f} %")
