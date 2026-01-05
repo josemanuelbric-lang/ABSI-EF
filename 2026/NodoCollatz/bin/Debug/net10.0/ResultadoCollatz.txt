@@ -1,0 +1,79 @@
+
+NIVEL 0 --------------------------------------------------
+N                                (>1N1*) 	0 / 2^0
+
+NIVEL 1 --------------------------------------------------
+NL                               (>4N6*) 	-1 / 2^0 0.0
+NIVEL 1-1 (Simetría NR) Rutas: 1
+
+NIVEL 2 --------------------------------------------------
+NLR                              (>2N3*) 	-1 / 2^1 -0.5
+NIVEL 2-1 (Simetría NR) Rutas: 2
+
+NIVEL 3 --------------------------------------------------
+NLRL                             (>16N18*) 	-3 / 2^2 -0.75
+NLRR                             (>1N3*) 	-1 / 2^2 -0.25
+NIVEL 3-1 (Simetría NR) Rutas: 3
+
+NIVEL 4 --------------------------------------------------
+NLRLR                            (>8N9*) 	-5 / 2^3 -0.625
+NLRRL                            (>4N18*) 	-3 / 2^3 -0.375
+NIVEL 4-2 (Simetría NLRRR) Rutas: 1
+NIVEL 4-1 (Simetría NR) Rutas: 5
+
+NIVEL 5 --------------------------------------------------
+NLRLRL                           (>52N54*) 	-11 / 2^4 -0.6875
+NLRLRR                           (>4N9*) 	-9 / 2^4 -0.5625
+NLRRLR                           (>2N9*) 	-5 / 2^4 -0.3125
+NIVEL 5-2 (Simetría NLRRR) Rutas: 2
+NIVEL 5-1 (Simetría NR) Rutas: 8
+
+NIVEL 6 --------------------------------------------------
+NLRLRLR                          (>26N27*) 	-21 / 2^5 -0.65625
+NLRLRRL                          (>40N54*) 	-19 / 2^5 -0.59375
+NLRLRRR                          (>2N9#) 	-17 / 2^5 -0.53125
+NLRRLRL                          (>34N54*) 	-11 / 2^5 -0.34375
+NLRRLRR                          (>1N9*) 	-9 / 2^5 -0.28125
+NIVEL 6-2 (Simetría NLRRR) Rutas: 3
+NIVEL 6-1 (Simetría NR) Rutas: 13
+
+NIVEL 7 --------------------------------------------------
+NLRLRLRL                         (>160N162*) 	-43 / 2^6 -0.671875
+NLRLRLRR                         (>13N27*) 	-41 / 2^6 -0.640625
+NLRLRRLR                         (>20N27*) 	-37 / 2^6 -0.578125
+NLRLRRRL                         (>34N54#) 	-35 / 2^6 -0.546875
+NLRLRRRR                         (>1N9#) 	-33 / 2^6 -0.515625
+NLRRLRLR                         (>17N27*) 	-21 / 2^6 -0.328125
+NLRRLRRL                         (>4N54*) 	-19 / 2^6 -0.296875
+NLRRLRRR                         (>5N9*) 	-17 / 2^6 -0.265625
+NIVEL 7-2 (Simetría NLRRR) Rutas: 5
+NIVEL 7-1 (Simetría NR) Rutas: 21
+
+NIVEL 8 --------------------------------------------------
+NLRLRLRLR                        (>80N81*) 	-85 / 2^7 -0.6640625
+NLRLRLRRL                        (>40N162*) 	-83 / 2^7 -0.6484375
+NLRLRLRRR                        (>20N27#) 	-81 / 2^7 -0.6328125
+NLRLRRLRL                        (>142N162*) 	-75 / 2^7 -0.5859375
+NLRLRRLRR                        (>10N27*) 	-73 / 2^7 -0.5703125
+NLRLRRRLR                        (>17N27#) 	-69 / 2^7 -0.5390625
+NLRLRRRRL                        (>4N54#) 	-67 / 2^7 -0.5234375
+NLRLRRRRR                        (>5N9#) 	-65 / 2^7 -0.5078125
+NLRRLRLRL                        (>52N162*) 	-43 / 2^7 -0.3359375
+NLRRLRLRR                        (>22N27*) 	-41 / 2^7 -0.3203125
+NLRRLRRLR                        (>2N27*) 	-37 / 2^7 -0.2890625
+NLRRLRRRL                        (>16N54*) 	-35 / 2^7 -0.2734375
+NLRRLRRRR                        (>7N9*) 	-33 / 2^7 -0.2578125
+NIVEL 8-2 (Simetría NLRRR) Rutas: 8
+NIVEL 8-1 (Simetría NR) Rutas: 34
+
+============================================================
+RESUMEN DE SIMETRÍA:
+NIVEL 0    NR: 0        NLRRR: 0        NL_Duplicate: 0        Total: 0       
+NIVEL 1    NR: 1        NLRRR: 0        NL_Duplicate: 0        Total: 1       
+NIVEL 2    NR: 2        NLRRR: 0        NL_Duplicate: 0        Total: 2       
+NIVEL 3    NR: 3        NLRRR: 0        NL_Duplicate: 0        Total: 3       
+NIVEL 4    NR: 5        NLRRR: 1        NL_Duplicate: 0        Total: 6       
+NIVEL 5    NR: 8        NLRRR: 2        NL_Duplicate: 0        Total: 10      
+NIVEL 6    NR: 13       NLRRR: 3        NL_Duplicate: 1        Total: 17      
+NIVEL 7    NR: 21       NLRRR: 5        NL_Duplicate: 2        Total: 28      
+NIVEL 8    NR: 34       NLRRR: 8        NL_Duplicate: 4        Total: 46      
