@@ -1,65 +1,75 @@
 import time
 import random
 
-# --- TU LÓGICA ABSI-EF ---
-class ObjetoEF:
-    def __init__(self, p, v):
-        self.p = p
-        self.v = v
-        self.densidad = v / p
+# --- ABSI-EF LOGIC ---
+class EFObject:
+    def __init__(self, weight, value):
+        self.weight = weight
+        self.value = value
+        self.density = value / weight
 
-def resolver_mochila_absi_pro(objetos, capacidad):
-    objetos.sort(key=lambda x: x.densidad, reverse=True)
-    mejor_valor = 0
-    nodos_activos = [(0, 0, "N")]
-    for obj in objetos:
-        proximos = []
-        for peso_act, valor_act, ruta in nodos_activos:
-            if peso_act + obj.p <= capacidad:
-                nv = valor_act + obj.v
-                proximos.append((peso_act + obj.p, nv, ruta + "R"))
-                if nv > mejor_valor: mejor_valor = nv
-            proximos.append((peso_act, valor_act, ruta + "L"))
-        nodos_activos = proximos
-        if len(nodos_activos) > 1000:
-            nodos_activos.sort(key=lambda x: x[1], reverse=True)
-            nodos_activos = nodos_activos[:500]
-    return mejor_valor
+def solve_knapsack_absi_pro(objects, capacity):
+    # Sort objects by density (value/weight ratio)
+    objects.sort(key=lambda x: x.density, reverse=True)
+    best_value = 0
+    active_nodes = [(0, 0, "N")]  # (current_weight, current_value, path)
+    
+    for obj in objects:
+        next_nodes = []
+        for current_weight, current_value, path in active_nodes:
+            # Right branch: Take the object
+            if current_weight + obj.weight <= capacity:
+                new_value = current_value + obj.value
+                next_nodes.append((current_weight + obj.weight, new_value, path + "R"))
+                if new_value > best_value:
+                    best_value = new_value
+            # Left branch: Skip the object
+            next_nodes.append((current_weight, current_value, path + "L"))
+        
+        active_nodes = next_nodes
+        
+        # Prune if too many nodes (maintain efficiency)
+        if len(active_nodes) > 1000:
+            active_nodes.sort(key=lambda x: x[1], reverse=True)
+            active_nodes = active_nodes[:500]
+    
+    return best_value
 
-# --- LÓGICA DE FUERZA BRUTA (Exponencial) ---
-def fuerza_bruta_recursiva(objetos, capacidad, n):
-    # Caso base: no quedan objetos o capacidad agotada
-    if n == 0 or capacidad == 0:
+# --- BRUTE FORCE LOGIC (Exponential) ---
+def brute_force_recursive(objects, capacity, n):
+    # Base case: no objects left or no capacity
+    if n == 0 or capacity == 0:
         return 0
-    # Si el objeto pesa más que la capacidad, se excluye (Ruta L forzada)
-    if objetos[n-1].p > capacidad:
-        return fuerza_bruta_recursiva(objetos, capacidad, n-1)
+    
+    # If object weighs more than capacity, skip it (forced Left branch)
+    if objects[n-1].weight > capacity:
+        return brute_force_recursive(objects, capacity, n-1)
     else:
-        # Probamos todas las combinaciones: Meter (R) y No Meter (L)
+        # Try both possibilities: Take (R) and Skip (L)
         return max(
-            objetos[n-1].v + fuerza_bruta_recursiva(objetos, capacidad - objetos[n-1].p, n-1),
-            fuerza_bruta_recursiva(objetos, capacidad, n-1)
+            objects[n-1].value + brute_force_recursive(objects, capacity - objects[n-1].weight, n-1),
+            brute_force_recursive(objects, capacity, n-1)
         )
 
-# --- PRUEBA DE COMPARACIÓN ---
+# --- COMPARISON TEST ---
 random.seed(42)
-n_objetos = 22 # Reducimos a 22 para que la fuerza bruta no se congele
-objetos_prueba = [ObjetoEF(random.randint(1, 20), random.randint(10, 100)) for _ in range(n_objetos)]
-capacidad_prueba = 100
+n_objects = 22  # Reduced to 22 so brute force doesn't freeze
+test_objects = [EFObject(random.randint(1, 20), random.randint(10, 100)) for _ in range(n_objects)]
+test_capacity = 100
 
-print(f"Comparando {n_objetos} objetos...\n")
+print(f"Comparing {n_objects} objects...\n")
 
-# Ejecución ABSI-EF
+# Execute ABSI-EF
 start = time.perf_counter()
-res_absi = resolver_mochila_absi_pro(objetos_prueba, capacidad_prueba)
-t_absi = time.perf_counter() - start
+absi_result = solve_knapsack_absi_pro(test_objects, test_capacity)
+absi_time = time.perf_counter() - start
 
-# Ejecución Fuerza Bruta
+# Execute Brute Force
 start = time.perf_counter()
-res_fb = fuerza_bruta_recursiva(objetos_prueba, capacidad_prueba, n_objetos)
-t_fb = time.perf_counter() - start
+brute_result = brute_force_recursive(test_objects, test_capacity, n_objects)
+brute_time = time.perf_counter() - start
 
-print(f"--- RESULTADOS ---")
-print(f"ABSI-EF:      Valor {res_absi} | Tiempo: {t_absi:.6f} seg")
-print(f"Fuerza Bruta: Valor {res_fb} | Tiempo: {t_fb:.6f} seg")
-print(f"Diferencia de velocidad: {t_fb / t_absi:.2f} veces más rápido el ABSI-EF")
+print(f"--- RESULTS ---")
+print(f"ABSI-EF:      Value {absi_result} | Time: {absi_time:.6f} sec")
+print(f"Brute Force:  Value {brute_result} | Time: {brute_time:.6f} sec")
+print(f"Speed difference: {brute_time / absi_time:.2f}x faster for ABSI-EF")
