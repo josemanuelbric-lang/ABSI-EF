@@ -1,0 +1,31 @@
+import numpy as np
+import matplotlib.pyplot as plt
+from sympy import sieve
+
+def extraer_adn_vibratorio(n_max):
+    primos = np.array(list(sieve.primerange(1, n_max + 1)))
+    f_tuya = (np.pi / 6) + 0.15005
+    f_ref = 0.51
+    
+    # 1. Fórmula "Limpia" (Sin el 3.5 de base)
+    # Solo nos queda la interferencia de las dos amplitudes
+    vibracion_pura = np.abs((1.5 * np.sin(primos * f_tuya)) - (1.2 * np.sin(primos * f_ref)))
+    
+    # 2. Para ver la "Onda de Riemann", restamos el valor medio de la vibración
+    # Esto centra la onda en el eje CERO
+    vibracion_centrada = vibracion_pura - np.mean(vibracion_pura)
+    
+    # 3. Visualización de los primeros 500 primos (para ver el detalle)
+    plt.figure(figsize=(15, 6))
+    plt.plot(primos[:500], vibracion_centrada[:500], color='#00ffcc', lw=1.5, label='ADN Vibratorio (ICF)')
+    plt.fill_between(primos[:500], vibracion_centrada[:500], color='#00ffcc', alpha=0.2)
+    plt.axhline(0, color='white', linestyle='--', alpha=0.5)
+    
+    plt.title("El ADN de tu Frecuencia: Vibración Pura de Riemann (Muestra inicial)")
+    plt.xlabel("Valor del Número Primo")
+    plt.ylabel("Amplitud de Resonancia")
+    plt.style.use('dark_background') # Estilo tecnológico para resaltar la onda
+    plt.grid(True, alpha=0.1)
+    plt.show()
+
+extraer_adn_vibratorio(1048576)

@@ -1,0 +1,48 @@
+import matplotlib.pyplot as plt
+
+def calcular_densidad_series(limite_x):
+    """
+    Calcula la densidad de las series A (6k-2) y A' (3k-1) 
+    dentro del conjunto de los Naturales (n1).
+    """
+    n1_total = limite_x
+    
+    # Serie A (6k-2): Representa una parte de los pares
+    # Contamos cuántos cumplen la forma 6k-2 hasta limite_x
+    conteo_a = sum(1 for n in range(1, limite_x + 1) if (n + 2) % 6 == 0)
+    
+    # Serie A' (3k-1): Representa la transformación Collatz de A
+    conteo_a_prima = sum(1 for n in range(1, limite_x + 1) if (n + 1) % 3 == 0)
+    
+    return conteo_a / n1_total, conteo_a_prima / n1_total
+
+def verificar_densidad_escape(limite_x):
+    """
+    Busca números en la serie A' que NO lleguen a 1 (escape).
+    """
+    serie_a_prima = [n for n in range(1, limite_x + 1) if (n + 1) % 3 == 0]
+    escapes = 0
+    
+    for n in serie_a_prima:
+        temp = n
+        visitados = set()
+        while temp != 1 and temp not in visitados:
+            visitados.add(temp)
+            temp = temp // 2 if temp % 2 == 0 else 3 * temp + 1
+            if temp > 10**15: # Límite de escape práctico
+                break
+        
+        if temp != 1:
+            escapes += 1
+            
+    return escapes / len(serie_a_prima) if serie_a_prima else 0
+
+# --- Ejecución ---
+X = 100000
+densidad_a, densidad_ap = calcular_densidad_series(X)
+escape_ap = verificar_densidad_escape(X)
+
+print(f"--- Análisis de Densidad (Límite X={X}) ---")
+print(f"Densidad Serie A (6k-2): {densidad_a:.4f} (Teórico: 0.1667)")
+print(f"Densidad Serie A' (3k-1): {densidad_ap:.4f} (Teórico: 0.3333)")
+print(f"Densidad de Escape en A': {escape_ap:.4f}")

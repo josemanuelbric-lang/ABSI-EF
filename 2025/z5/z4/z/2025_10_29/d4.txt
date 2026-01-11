@@ -1,0 +1,66 @@
+import numpy as np
+
+# --- Constantes y Parámetros de la TDH ---
+
+# Físicamente, el límite es la Escala de Planck (M_p ~ 10^19 GeV),
+# pero aquí usamos una escala grande para demostrar la divergencia.
+LAMBDA_PLANK = 10**5 
+
+# Postulado 9 (TDH): La Dimensión D_n tiene un número finito de Atomodimensionales.
+# El número de A_n es el límite físico real (análogo al límite de corte Λ).
+# Usaremos un número contable y finito, que será nuestro límite físico.
+NUMERO_ATOMODIMENSIONALES_D0 = 1000
+
+# Constante de Tensión (κ): Usada aquí para normalizar la escala.
+KAPPA_TENSION = 1.0 
+
+# La función a integrar (Energía del Punto Cero ~ k^3)
+def energia_del_vacio_densidad(k):
+    """Simula la densidad de energía del vacío (proporcional a k^3)."""
+    return k**3
+
+# --- Escenario 1: TQC Estándar (Teórico, Divergente) ---
+# En la TQC, el límite debería ser infinito (causando la divergencia).
+# Usamos un límite muy grande (LAMBDA_PLANK) para simular la predicción teórica.
+
+# Integral: 1/4 * k^4 evaluada en el límite Λ.
+energia_tqc = (1/4) * (LAMBDA_PLANK**4) 
+
+print(f"--- 1. TQC Estándar (Límite Teórico) ---")
+print(f"Límite de la Integral (Escala de Planck simplificada): {LAMBDA_PLANK}")
+print(f"Energía del Vacío TQC (Divergente): {energia_tqc:.2e} unidades")
+print("Conclusión TQC: El resultado es gigantesco (propenso a la divergencia infinita).")
+
+print("\n" + "="*50 + "\n")
+
+# --- Escenario 2: TDH (Físicamente Finito y Cuantificado) ---
+# La TDH reemplaza la integral continua con una suma discreta y finita.
+
+# 1. Definir la escala discreta:
+# Dividimos el rango de 0 a 1 (normalizado) en pasos discretos (los A_n).
+k_discreto = np.linspace(0, 1, NUMERO_ATOMODIMENSIONALES_D0) 
+
+# 2. Calcular la suma finita sobre los A_n:
+# La sumatoria es la aproximación numérica de la integral.
+# Multiplicamos por la escala de energía (LAMBDA_PLANK) y el ancho del paso (dk).
+
+dk = k_discreto[1] - k_discreto[0] # Ancho del paso (A_n)
+
+# Suma: Sumar la función k^3 en cada punto discreto.
+# Usamos solo hasta el penúltimo punto para la regla de la izquierda.
+energia_tdh_suma = np.sum(energia_del_vacio_densidad(k_discreto[:-1])) * dk 
+
+# Ajuste por la escala real de energía (KAPPA_TENSION * LAMBDA_PLANK^4)
+energia_tdh_final = KAPPA_TENSION * (LAMBDA_PLANK**4) * energia_tdh_suma
+
+
+print(f"--- 2. TDH (Solución Cuantificada y Fínita) ---")
+print(f"Número de Atomodimensionales (|D0|): {NUMERO_ATOMODIMENSIONALES_D0}")
+print(f"Energía Total TDH (Suma Discreta): {energia_tdh_final:.2e} unidades")
+
+# Comprobación matemática: La integral de k^3 de 0 a 1 es 1/4 o 0.25.
+# Si el código funciona, energia_tdh_suma debe ser cercano a 0.25.
+print(f"Suma Discreta Normalizada (de 0 a 1): {energia_tdh_suma:.4f}") 
+
+print("\nConclusión TDH: La energía del vacío sigue siendo muy grande, pero su valor está FORZADO a ser finito y bien definido (limitado por |D0|).")
+print("La TDH reemplaza la integral con potencial infinito por una suma finita, eliminando la divergencia.")

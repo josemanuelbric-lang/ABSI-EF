@@ -1,0 +1,48 @@
+import matplotlib.pyplot as plt
+
+def verifica_collatz(n):
+    """Verifica si un número llega al ciclo 1."""
+    visitados = set()
+    temp = n
+    while temp != 1 and temp not in visitados:
+        visitados.add(temp)
+        if temp % 2 == 0:
+            temp //= 2
+        else:
+            temp = 3 * temp + 1
+    return temp == 1
+
+def calcular_densidad_progresiva(max_x):
+    """Calcula cómo evoluciona la densidad a medida que X crece."""
+    convergentes = 0
+    densidades = []
+    indices = []
+    
+    for n in range(1, max_x + 1):
+        if verifica_collatz(n):
+            convergentes += 1
+        
+        # Guardamos muestras para graficar la tendencia al infinito
+        if n % (max_x // 100 if max_x > 100 else 1) == 0:
+            densidades.append(convergentes / n)
+            indices.append(n)
+            
+    return indices, densidades
+
+# --- Ejecución ---
+limite = 10000
+x, y = calcular_densidad_progresiva(limite)
+
+print(f"Densidad final para X={limite}: {y[-1]}")
+
+# Visualización de la "Lógica del Casi Todo"
+plt.figure(figsize=(10, 5))
+plt.plot(x, y, color='blue', label='Densidad de Convergencia')
+plt.axhline(y=1.0, color='red', linestyle='--', label='Límite Teórico (1.0)')
+plt.title("Evolución de la Densidad Natural (Tendencia al Infinito)")
+plt.xlabel("Valor de X (Tamaño del conjunto n1)")
+plt.ylabel("Proporción que llega a 1")
+plt.ylim(0.9, 1.01)
+plt.legend()
+plt.grid(True, alpha=0.3)
+plt.show()

@@ -1,0 +1,45 @@
+import numpy as np
+import matplotlib.pyplot as plt
+from sympy import sieve
+
+def encontrar_rebeldes(n_max):
+    # 1. Generar datos reales
+    primos = np.array(list(sieve.primerange(1, n_max + 1)))
+    
+    # 2. Recrear señales y áreas (Brecha de Resonancia)
+    icf_vals = 3.5 + 1.5 * np.sin(primos * 0.5) 
+    zeta_vals = 3.5 + 1.2 * np.sin(primos * 0.51)
+    brecha = np.abs(icf_vals - zeta_vals)
+    area_gris = np.cumsum(brecha)
+    
+    # 3. Tendencia de Gauss (Referencia)
+    gauss = np.cumsum(1 / np.log(primos + 1.1)) 
+    gauss_escalada = gauss * (area_gris[-1] / gauss[-1])
+    
+    # 4. Calcular la diferencia (Desviación) entre tu modelo y Gauss
+    desviacion = np.abs(area_gris - gauss_escalada)
+    
+    # 5. Encontrar los 5 índices con mayor desviación
+    indices_rebeldes = np.argsort(desviacion)[-5:]
+    primos_rebeldes = primos[indices_rebeldes]
+    valores_desviacion = desviacion[indices_rebeldes]
+    
+    return primos_rebeldes, valores_desviacion, primos, area_gris, gauss_escalada
+
+# Ejecución
+rebeldes, valores, todos_primos, area, curva_gauss = encontrar_rebeldes(32768)
+
+print("--- LOS 5 NÚMEROS REBELDES (MÁXIMA DESVIACIÓN) ---")
+for p, v in zip(reversed(rebeldes), reversed(valores)):
+    print(f"Número Primo: {p} | Nivel de Desviación: {v:.4f}")
+
+# Visualización de los puntos de ruptura
+plt.figure(figsize=(12, 6))
+plt.plot(todos_primos, area - curva_gauss, color='purple', label='Residuo (Modelo - Gauss)')
+plt.scatter(rebeldes, rebeldes*0, color='red', marker='x', label='Puntos de Máxima Ruptura')
+plt.axhline(0, color='black', lw=1, ls='--')
+plt.title("Anatomía de la Desviación: ¿Dónde se rompe la armonía?")
+plt.xlabel("Valor del Número Primo")
+plt.ylabel("Diferencia Neta de Energía")
+plt.legend()
+plt.show()

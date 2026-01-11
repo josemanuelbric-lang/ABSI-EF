@@ -1,0 +1,38 @@
+import math
+
+def segmentar_negativos_lista(numeros):
+    lista_descenso_R = []
+    lista_ascenso_L = []
+    for n in numeros:
+        if n % 2 == 0:
+            # Regla de Descenso R (aplicada a pares)
+            resultado = n // 2
+            lista_descenso_R.append(resultado)
+        else:
+            # Regla de Ascenso L (aplicada a impares)
+            resultado = n * 3 + 1
+            lista_ascenso_L.append(resultado)
+    return lista_descenso_R, lista_ascenso_L
+limite_test=100
+mi_lista_negativa = list(range(-1, -(limite_test + 1), -1))
+pares_R, impares_L = segmentar_negativos_lista(mi_lista_negativa)
+
+print(f"--- SEGMENTACIÓN DE LISTAS (Rango -1 a -{limite_test}) ---")
+
+print(f"\nLISTA R1 {len(pares_R)}")
+print(pares_R)
+print(f"\nLISTA L1 {len(impares_L)}")
+print(impares_L)
+
+
+pares_R, impares_L = segmentar_negativos_lista(impares_L)
+print(f"\nLISTA R2 {len(pares_R)}")
+print(pares_R)
+print(f"\nLISTA L2 {len(impares_L)}")
+print(impares_L)
+
+pares_R, impares_L = segmentar_negativos_lista(pares_R)
+print(f"\nLISTA R3 {len(pares_R)}")
+print(pares_R)
+print(f"\nLISTA L3 {len(impares_L)}")
+print(impares_L)

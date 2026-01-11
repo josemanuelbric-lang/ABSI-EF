@@ -1,0 +1,82 @@
+import matplotlib.pyplot as plt
+import numpy as np
+
+def generar_arbol_collatz(n_inicial):
+    """Calcula la secuencia de Collatz y su árbol de expresiones."""
+    if n_inicial <= 0:
+        return "El número debe ser un entero positivo.", [], 0
+
+    n = n_inicial
+    secuencia_completa = [n]
+    arbol_expresiones = [] # 'L' (Ascenso, Impar) y 'R' (Descenso, Par)
+    
+    while n != 1:
+        if n % 2 == 0:
+            # Caso Par (Descenso o lado R)
+            n_siguiente = n // 2
+            arbol_expresiones.append(0) # 0 para R (Descenso)
+        else:
+            # Caso Impar (Ascenso o lado L)
+            n_siguiente = 3 * n + 1
+            arbol_expresiones.append(1) # 1 para L (Ascenso)
+        
+        n = n_siguiente
+        secuencia_completa.append(n)
+
+    tiempo_parada = len(secuencia_completa) - 1
+    # Devolvemos la secuencia numérica, la secuencia binaria (0s y 1s) y el tiempo.
+    return secuencia_completa, arbol_expresiones, tiempo_parada
+
+def generar_graficos(secuencia, expresiones, n_inicial):
+    """Genera dos gráficos: el valor de la secuencia y la secuencia de paridad."""
+    
+    pasos = np.arange(len(secuencia))
+    
+    # --- GRÁFICO 1: Valor de la Secuencia (El Árbol de Collatz) ---
+    plt.figure(figsize=(10, 6))
+    plt.plot(pasos, secuencia, marker='o', linestyle='-', color='indigo', markersize=5, linewidth=2)
+    
+    # Resaltar los pasos de ascenso (Impar -> 3N+1)
+    for i, exp in enumerate(expresiones):
+        if exp == 1: # Es un ascenso (L)
+            plt.plot(pasos[i], secuencia[i], 'o', color='red', markersize=7, label='Ascenso (L: 3N+1)' if i == 0 else "")
+            
+    plt.title(f'1. Secuencia de Collatz para N = {n_inicial} (Tiempo de Parada: {len(secuencia)-1})')
+    plt.xlabel('Pasos de Iteración')
+    plt.ylabel('Valor de N')
+    plt.grid(True, linestyle='--', alpha=0.6)
+    plt.yscale('log') # Escala logarítmica para manejar picos altos
+    plt.legend(['Valores de la Secuencia', 'Paso de Ascenso (L)'], loc='upper right')
+    plt.show()
+    
+    # --- GRÁFICO 2: Árbol de Expresiones (Secuencia de Paridad) ---
+    plt.figure(figsize=(10, 4))
+    # Creamos un array de strings para las etiquetas: 'L' o 'R'
+    expresiones_str = ['L (Ascenso)' if x == 1 else 'R (Descenso)' for x in expresiones]
+    
+    # Usamos barras de colores para distinguir
+    colores = ['red' if x == 1 else 'blue' for x in expresiones]
+    
+    plt.bar(pasos[:-1], expresiones, color=colores)
+    
+    # Etiquetas de los ejes
+    plt.yticks([0, 1], ['R (Descenso)', 'L (Ascenso)'])
+    plt.xticks(pasos[:-1], [f'Paso {i+1}' for i in range(len(expresiones))], rotation=45, ha='right')
+    
+    plt.title(f'2. Árbol de Expresiones Binario (Paridad) para N = {n_inicial}')
+    plt.xlabel('Pasos de Iteración')
+    plt.ylabel('Tipo de Operación')
+    plt.grid(axis='y', linestyle='--', alpha=0.6)
+    plt.tight_layout()
+    plt.show()
+
+
+# --- EJEMPLO DE USO ---
+N_INICIO = 27 # Un número famoso por su largo tiempo de parada (111 pasos)
+
+secuencia, arbol_expresiones, tiempo_parada = generar_arbol_collatz(N_INICIO)
+print(f"Número de inicio: {N_INICIO}")
+print(f"Tiempo de Parada (τ): {tiempo_parada} pasos")
+print(f"Secuencia de Paridad (L/R): {['L' if x == 1 else 'R' for x in arbol_expresiones[:15]]}... (hasta {tiempo_parada} pasos)")
+
+generar_graficos(secuencia, arbol_expresiones, N_INICIO)

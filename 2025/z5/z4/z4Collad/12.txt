@@ -1,0 +1,47 @@
+import matplotlib.pyplot as plt
+import numpy as np
+
+def simular_espacio_fases(limite_x, pasos_futuros=5):
+    # Serie A' (3k-1)
+    serie_a_prima = [n for n in range(1, limite_x + 1) if (n + 1) % 3 == 0]
+    
+    x_coords = []
+    y_coords = []
+    
+    for n in serie_a_prima:
+        temp = n
+        # Calculamos la media de los próximos pasos para suavizar el "ruido" de paridad
+        proximos = []
+        for _ in range(pasos_futuros):
+            temp = temp // 2 if temp % 2 == 0 else 3 * temp + 1
+            proximos.append(temp)
+            if temp == 1: break
+        
+        x_coords.append(n)
+        y_coords.append(np.mean(proximos)) # El "destino" promedio a corto plazo
+
+    return x_coords, y_coords
+
+# --- Ejecución ---
+limite = 1000
+x, y = simular_espacio_fases(limite)
+
+# --- Visualización ---
+plt.figure(figsize=(10, 10))
+plt.scatter(x, y, s=10, color='blue', alpha=1, label="Puntos de la Serie A'")
+plt.plot([0, limite], [0, limite], color='red', linestyle='--', label="Línea de Equilibrio (y=x)")
+
+# Estética del gráfico
+plt.xscale('log')
+plt.yscale('log')
+plt.title("Espacio de Fases: Succión de la Serie A' hacia el Atractor")
+plt.xlabel("Valor Inicial (N_t)")
+plt.ylabel("Valor Promedio Futuro (E[N_{t+k}])")
+plt.grid(True, which="both", ls="-", alpha=0.2)
+plt.legend()
+
+# Añadir flechas indicativas de succión
+plt.annotate('Zona de Succión (Contracción)', xy=(limite/10, limite/100), xytext=(limite/5, limite/1000),
+             arrowprops=dict(facecolor='black', shrink=0.05))
+
+plt.show()

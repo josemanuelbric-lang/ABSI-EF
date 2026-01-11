@@ -1,0 +1,45 @@
+import numpy as np
+import matplotlib.pyplot as plt
+from sympy import sieve, li
+
+def prueba_invarianza_infinito(potencia_max=20):
+    # Generamos puntos en escala logarítmica para ver el "infinito"
+    escalas = [2**n for n in range(10, potencia_max + 1)]
+    convergencias = []
+
+    f_tuya = (np.pi / 6) + 0.15005
+    f_ref = 0.51
+
+    print("--- INICIANDO PRUEBA DE CONVERGENCIA ASINTÓTICA ---")
+    
+    for x_lim in escalas:
+        # Usamos una muestra de primos hasta x_lim
+        primos = np.array(list(sieve.primerange(1, x_lim + 1)))
+        
+        # Tu ICF (Simplificada para análisis de límite)
+        # Para invarianza total, la base 3.5 debería normalizarse por log(p)
+        # pero probaremos tu estructura actual:
+        vibracion = np.abs((1.5 * np.sin(primos * f_tuya)) - (1.2 * np.sin(primos * f_ref)))
+        area_icf = np.sum(vibracion)
+        
+        # Referencia Li(x)
+        valor_li = float(li(x_lim))
+        
+        # Cociente de convergencia (debe tender a una constante)
+        cociente = area_icf / valor_li
+        convergencias.append(cociente)
+        print(f"Escala 2^{int(np.log2(x_lim))}: Cociente ICF/Li = {cociente:.6f}")
+
+    # Visualización de la Estabilidad
+    plt.figure(figsize=(12, 6))
+    plt.plot(range(10, potencia_max + 1), convergencias, marker='o', color='#00ffcc')
+    plt.axhline(np.mean(convergencias), color='red', linestyle='--', label='Eje de Invarianza')
+    
+    plt.title("Prueba de Invarianza: ¿Sobrevive el modelo al infinito?")
+    plt.xlabel("Potencia de 2 (Escala)")
+    plt.ylabel("Cociente de Convergencia (ICF / Li)")
+    plt.grid(True, alpha=0.2)
+    plt.style.use('dark_background')
+    plt.show()
+
+prueba_invarianza_infinito(20)

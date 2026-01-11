@@ -1,0 +1,70 @@
+import numpy as np
+import matplotlib.pyplot as plt
+from matplotlib.widgets import Slider
+from sympy import sieve, li
+
+def sintonizador_mersenne_pro(n_max=1048576):
+    # 1. Base de datos (Tu modelo ICF)
+    primos = np.array(list(sieve.primerange(1, n_max + 1)))
+    referencia_li = np.array([float(li(p)) for p in primos])
+    
+    f_tuya = (np.pi / 6) + 0.15005
+    area_tuya = np.cumsum(np.abs((3.5 + 1.5 * np.sin(primos * f_tuya)) - (3.5 + 1.2 * np.sin(primos * 0.51))))
+    
+    li_norm = referencia_li * (area_tuya[-1] / referencia_li[-1])
+    error = area_tuya - li_norm
+    
+    # 2. Localizar Mersenne
+    m_exp = [2, 3, 5, 7, 13, 17, 19]
+    p_mersenne = np.array([2**e - 1 for e in m_exp if 2**e - 1 <= n_max])
+    indices_m = [np.where(primos == m)[0][0] for m in p_mersenne]
+    errores_m = error[indices_m]
+
+    # 3. Gráfica Principal
+    fig, ax = plt.subplots(figsize=(15, 9))
+    plt.subplots_adjust(bottom=0.35) # Espacio para los 4 sliders
+    
+    ax.plot(primos, error, color='blue', alpha=0.15, label='Error General (ICF)')
+    linea_onda, = ax.plot(primos, np.zeros_like(primos), color='#FFD700', lw=2, label='Onda Predictora')
+    ax.scatter(p_mersenne, errores_m, color='red', s=120, edgecolors='black', zorder=5, label='Mersenne')
+    
+    ax.axhline(0, color='white', lw=0.5, ls='--')
+    ax.set_title("Sintonizador Forense de Mersenne: Buscando la Frecuencia Fantasma")
+    ax.set_facecolor('#101010') # Fondo oscuro para ver mejor la onda dorada
+    ax.legend()
+
+    # 4. Creación de Sliders
+    color_s = 'cyan'
+    ax_f = plt.axes([0.2, 0.20, 0.6, 0.02])
+    ax_a = plt.axes([0.2, 0.15, 0.6, 0.02])
+    ax_p = plt.axes([0.2, 0.10, 0.6, 0.02])
+    ax_g = plt.axes([0.2, 0.05, 0.6, 0.02])
+
+    s_freq = Slider(ax_f, 'Frecuencia', 0.1, 50.0, valinit=11.5, valcolor=color_s)
+    s_amp  = Slider(ax_a, 'Amplitud', 1.0, 200.0, valinit=60.0, valcolor=color_s)
+    s_fase = Slider(ax_p, 'Fase (rad)', 0.0, 2*np.pi, valinit=0.0, valcolor=color_s)
+    s_grow = Slider(ax_g, 'Crecimiento', -0.5, 0.5, valinit=0.0, valcolor=color_s)
+
+    def update(val):
+        f = s_freq.val
+        a = s_amp.val
+        p = s_fase.val
+        g = s_grow.val
+        
+        # La clave: escala logarítmica multiplicada por un factor de crecimiento
+        # para compensar cómo se alejan los primos de Mersenne
+        factor_escala = (primos / n_max)**g
+        nueva_onda = a * factor_escala * np.sin(np.log(primos) * f + p)
+        
+        linea_onda.set_ydata(nueva_onda)
+        fig.canvas.draw_idle()
+
+    s_freq.on_changed(update)
+    s_amp.on_changed(update)
+    s_fase.on_changed(update)
+    s_grow.on_changed(update)
+    
+    update(None)
+    plt.show()
+
+sintonizador_mersenne_pro()

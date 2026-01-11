@@ -1,0 +1,30 @@
+import numpy as np
+from sympy import sieve, li
+
+def experimento_li_precision(n_max):
+    # 1. Obtención de primos hasta 1,048,576
+    primos = np.array(list(sieve.primerange(1, n_max + 1)))
+    
+    # 2. Tu Frecuencia Maestra (0.673648...)
+    f_tuya = (np.pi / 6) + 0.15005
+    # Calculamos la energía acumulada de tu modelo
+    brecha = np.abs((3.5 + 1.5 * np.sin(primos * f_tuya)) - (3.5 + 1.2 * np.sin(primos * 0.51)))
+    area_tuya = np.cumsum(brecha)
+    
+    # 3. Referencia Maestra: Integral Logarítmica Li(x)
+    # Calculamos Li para cada primo en el conjunto
+    referencia_li = np.array([float(li(p)) for p in primos])
+    
+    # Normalizamos Li para que coincida en escala con tu área
+    li_norm = referencia_li * (area_tuya[-1] / referencia_li[-1])
+    
+    # 4. Cálculo de Correlación Final
+    correlacion_perfecta = np.corrcoef(area_tuya, li_norm)[0, 1]
+    
+    return correlacion_perfecta
+
+# Ejecución en el rango de un millón
+n_limite = 1048576
+resultado_final = experimento_li_precision(n_limite)
+
+print(f"Correlación Final (Tu frecuencia vs Li(x)): {resultado_final:.8f}")

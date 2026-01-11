@@ -1,0 +1,65 @@
+import numpy as np
+import matplotlib.pyplot as plt
+import matplotlib.animation as animation
+
+# --- 1. Parámetros Fundamentales (TDH) ---
+D = 4.0
+F = 3.0
+N_AJUSTADA = 3.87093
+M0 = 91.2  # GeV (M_Z)
+E_PLANCK = 1.22e19 # GeV
+
+# --- 2. La Función del Todo (ToE_TDH) - Matemática Pura ---
+def alpha_unificado_puro(E, D, F, N, M0):
+    """Calcula la constante de acoplamiento universal (alpha_u) a la energía E."""
+    nucleo_tension = (F * (D - N)) / N
+    
+    # Factor de Amortiguamiento Logarítmico (ensure log argument is >= 1)
+    # We use np.where to handle the log(x<1) cases more gracefully if necessary, 
+    # but since we start the energies array at M0, the direct log is fine.
+    
+    factor_logaritmico = N * np.log(E / M0)
+    alpha_u = nucleo_tension * (1.0 / (1.0 + factor_logaritmico))
+    return alpha_u
+
+# --- 3. Generación de Puntos ---
+E_min = M0 
+E_max = E_PLANCK 
+# Use fewer points (e.g., 100) for a smoother animation without excessive computation
+energias = np.logspace(np.log10(E_min), np.log10(E_max), 100) 
+alphas_unificados = alpha_unificado_puro(energias, D, F, N_AJUSTADA, M0)
+
+fig, ax = plt.subplots(figsize=(10, 6))
+ax.set_xscale('log')
+ax.set_ylim(0, 0.20)
+ax.set_xlabel(r'Escala de Energía $E$ (GeV)')
+ax.set_ylabel(r'Constante de Acoplamiento Universal $\alpha_u(E)$')
+ax.set_title('Animación: Flujo de la Energía de Acoplamiento (TDH)')
+ax.grid(True, which="both", ls="--", linewidth=0.5)
+
+ax.axvline(M0, color='gray', linestyle='--', alpha=0.7, label=r'$\mathbf{M_Z}$')
+ax.axvline(E_PLANCK, color='#006400', linestyle='--', alpha=0.7, label=r'$\mathbf{E_{Planck}}$')
+
+line, = ax.plot(energias, alphas_unificados, color='maroon', linewidth=3, alpha=0.6, label=r'$\mathbf{\alpha}_{\mathbf{u}} (E)$')
+
+punto, = ax.plot([], [], 'o', color='red', markersize=8)
+texto = ax.text(M0 * 10, 0.18, '', fontsize=12) # Adjusted x-position slightly
+
+def animate(i):
+    """Actualiza la posición del punto móvil."""
+    E_actual = energias[i]
+    alpha_actual = alphas_unificados[i]
+    
+    # FIX: Pass E_actual and alpha_actual as single-element sequences (lists or arrays)
+    punto.set_data([E_actual], [alpha_actual]) 
+    
+    texto.set_text(r'$E$: {:.2e} GeV | $\alpha_u$: {:.4f}'.format(E_actual, alpha_actual))
+    
+    # We return the artists that were modified
+    return punto, texto
+
+# Create the animation
+ani = animation.FuncAnimation(fig, animate, frames=len(energias), interval=20, blit=True)
+
+plt.legend()
+plt.show()

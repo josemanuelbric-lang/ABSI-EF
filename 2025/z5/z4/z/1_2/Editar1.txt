@@ -1,0 +1,12 @@
+﻿s1 = 50
+s2 = 0.5
+s3 = 0.01
+C1 = (0, 0, 0)
+C2 = (5, 0, 0)
+C3 = (5.1, 0, 0)
+r1 = sqrt(x^2 + y^2)
+r2 = Distancia((x, y), C2)
+r3 = Distancia((x, y), C3)
+UTotal2(x, y) = -s1/r1 - s2/r2 - s3/r3
+Superficie(u, v, UTotal2(u, v), u, -10, 10, v, -10, 10)
+Tasa(x, y) = sqrt(1 + 0.005 * UTotal2(x, y))

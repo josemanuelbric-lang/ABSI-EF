@@ -1,0 +1,55 @@
+import numpy as np
+
+def analizar_nodo_especifico(n):
+    """
+    Ubica un número en el árbol de expresiones y extrae sus métricas 
+    sin construir el grafo completo.
+    """
+    original = n
+    trayectoria = [n]
+    expresiones = []
+    
+    # 1. Generar la ruta (El ADN del nodo)
+    while n != 1:
+        if n % 2 == 0:
+            expresiones.append('R')
+            n //= 2
+        else:
+            expresiones.append('L')
+            n = 3 * n + 1
+        trayectoria.append(n)
+    
+    # 2. Cálculos Métricos
+    profundidad = len(expresiones)
+    ascensos = expresiones.count('L')
+    descensos = expresiones.count('R')
+    
+    # Tasa de contracción específica
+    tasa_final = trayectoria[-1] / original
+    
+    # Entropía de paridad del camino
+    counts = [expresiones.count('L')/profundidad, expresiones.count('R')/profundidad]
+    entropia = -sum(p * np.log2(p) for p in counts if p > 0)
+    
+    return {
+        "Numero": original,
+        "Ruta": "".join(expresiones),
+        "Profundidad": profundidad,
+        "L (Ascensos)": ascensos,
+        "R (Descensos)": descensos,
+        "Relacion L/R": ascensos / descensos if descensos > 0 else 0,
+        "Tasa Contracción": tasa_final,
+        "Entropía Local": entropia,
+        "Pico Máximo": max(trayectoria)
+    }
+
+# --- EJEMPLO CON EL NÚMERO 11 ---
+datos_11 = analizar_nodo_especifico(11)
+
+print(f"--- UBICACIÓN LOGICA DEL NODO {datos_11['Numero']} ---")
+print(f"ADN de Ruta (Expresiones): {datos_11['Ruta']}")
+print(f"Profundidad en el Árbol: {datos_11['Profundidad']} niveles")
+print(f"Balance de Ramas: {datos_11['L (Ascensos)']}L vs {datos_11['R (Descensos)']}R")
+print(f"Entropía de la Trayectoria: {datos_11['Entropía Local']:.4f} bits")
+print(f"Pico de Magnitud: {datos_11['Pico Máximo']}")
+print(f"Tasa de Colapso Final: {datos_11['Tasa Contracción']:.6f}")

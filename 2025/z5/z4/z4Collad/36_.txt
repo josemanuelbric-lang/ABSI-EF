@@ -1,0 +1,39 @@
+import numpy as np
+import matplotlib.pyplot as plt
+from sympy import sieve, li
+
+def formula_calibrada_icf(n_max=1048576):
+    # 1. Datos base
+    primos = np.array(list(sieve.primerange(1, n_max + 1)))
+    referencia_li = np.array([float(li(p)) for p in primos])
+    
+    # 2. Tu Fórmula con el Factor de Corrección (1.117337)
+    f_tuya = (np.pi / 6) + 0.15005
+    f_ref = 0.51
+    factor_correccion = 1.117337
+    
+    # Aplicamos el factor directamente en la acumulación de la energía
+    vibracion = np.abs((1.5 * np.sin(1 * f_tuya)) - (1.2 * np.sin(primos * f_ref)))
+    area_calibrada = np.cumsum(vibracion) / factor_correccion
+    
+    # 3. Cálculo del nuevo Error
+    # Ahora comparamos directamente sin normalizar por el último valor de Li
+    # para ver si el modelo se sostiene por sí solo
+    error_calibrado = area_calibrada - referencia_li
+    
+    # 4. Visualización
+    plt.figure(figsize=(15, 7))
+    plt.plot(primos, error_calibrado, color='#00aaff', lw=0.8, label='Error ICF Calibrado')
+    plt.axhline(0, color='red', linestyle='--', lw=1.5, alpha=0.7)
+    
+    plt.title(f"Modelo ICF Calibrado (Factor: {factor_correccion})")
+    plt.xlabel("Valor del Número Primo")
+    plt.ylabel("Diferencia respecto a Li(x)")
+    plt.grid(True, alpha=0.2)
+    plt.style.use('dark_background')
+    plt.show()
+    
+    print(f"Error máximo tras calibración: {np.max(np.abs(error_calibrado)):.2f}")
+    return area_calibrada
+
+area_final = formula_calibrada_icf()

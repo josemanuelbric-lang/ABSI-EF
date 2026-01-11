@@ -1,0 +1,94 @@
+def generar_arbol_collatz(n_inicial):
+    """
+    Calcula la secuencia de Collatz para un número inicial y genera
+    el "árbol de expresiones" (la secuencia de paridad) y el tiempo de parada.
+
+    Args:
+        n_inicial (int): El número entero positivo para comenzar.
+
+    Returns:
+        tuple: (secuencia_completa, arbol_expresiones, tiempo_parada)
+    """
+    if n_inicial <= 0:
+        return "El número debe ser un entero positivo.", [], 0
+
+    n = n_inicial
+    secuencia_completa = [n]
+    arbol_expresiones = [] # Usaremos 'L' (Ascenso, Impar) y 'R' (Descenso, Par)
+
+    # La Conjetura de Collatz termina en 1 (o en el ciclo 4, 2, 1)
+    while n != 1:
+        # 1. Aplicar la Regla de Collatz
+        if n % 2 == 0:
+            # Caso Par (Descenso o lado R)
+            n_siguiente = n // 2
+            arbol_expresiones.append('R (N/2)')
+        else:
+            # Caso Impar (Ascenso o lado L)
+            n_siguiente = 3 * n + 1
+            arbol_expresiones.append('L (3N+1)')
+        
+        # 2. Actualizar la secuencia
+        n = n_siguiente
+        secuencia_completa.append(n)
+
+    tiempo_parada = len(secuencia_completa) - 1
+    return secuencia_completa, arbol_expresiones, tiempo_parada
+
+def imprimir_analisis(secuencia, expresiones, tiempo):
+    """Función para imprimir los resultados de manera clara."""
+    print("=" * 60)
+    print(f"ANÁLISIS DE LA SECUENCIA DE COLLATZ PARA N = {secuencia[0]}")
+    print("=" * 60)
+    
+    # 1. Secuencia de Valores
+    print("1. Secuencia Numérica Completa:")
+    print(" -> ".join(map(str, secuencia)))
+    print("-" * 60)
+
+    # 2. Árbol de Expresiones (Secuencia de Paridad)
+    print("2. Árbol de Expresiones (L = Impar -> Ascenso, R = Par -> Descenso):")
+    # Generamos la trayectoria paso a paso para mejor visualización
+    trayectoria = []
+    for i, exp in enumerate(expresiones):
+        origen = secuencia[i]
+        destino = secuencia[i+1]
+        trayectoria.append(f"{origen} {exp} -> {destino}")
+    
+    print("   -> ".join(trayectoria))
+    print("-" * 60)
+
+    # 3. Tiempo de Parada
+    print(f"3. Tiempo de Parada (Stopping Time τ): {tiempo} pasos")
+    print("-" * 60)
+    
+    # 4. El Gran Pico (Máximo Ascenso)
+    max_valor = max(secuencia)
+    print(f"4. Máximo Ascenso (Pico): {max_valor} (Ocurre en el paso {secuencia.index(max_valor)})")
+    
+    # 5. Resumen Formal (Basado en el Árbol)
+    L_count = expresiones.count('L (3N+1)')
+    R_count = expresiones.count('R (N/2)')
+    print(f"\n5. Resumen Formal (Teoría de Números):")
+    print(f"   - Total de Ascensos (L, 3N+1): {L_count}")
+    print(f"   - Total de Descensos (R, N/2): {R_count}")
+    print(f"   - La relación I/D es: {L_count / R_count:.4f} (Debe ser menor a 1 para que Collatz sea cierta)")
+    print("=" * 60)
+
+
+# --- EJEMPLOS DE USO ---
+
+# 1. Su ejemplo de Descenso Puro (similar a 8)
+N_ejemplo_1 = 16
+sec1, arbol1, tiempo1 = generar_arbol_collatz(N_ejemplo_1)
+imprimir_analisis(sec1, arbol1, tiempo1)
+
+# 2. Su ejemplo de Ascenso y Descenso (similar a 11)
+N_ejemplo_2 = 11
+sec2, arbol2, tiempo2 = generar_arbol_collatz(N_ejemplo_2)
+imprimir_analisis(sec2, arbol2, tiempo2)
+
+# 3. Un número con una secuencia larga (27)
+N_ejemplo_3 = 27
+sec3, arbol3, tiempo3 = generar_arbol_collatz(N_ejemplo_3)
+imprimir_analisis(sec3, arbol3, tiempo3)

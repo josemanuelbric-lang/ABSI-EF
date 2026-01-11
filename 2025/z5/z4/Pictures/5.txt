@@ -1,0 +1,107 @@
+import networkx as nx
+import matplotlib.pyplot as plt
+import numpy as np
+
+# --- 1. Definición de las Reglas INVERSAS de Collatz ---
+
+def collatz_inverse_step(n):
+    """
+    Aplica las reglas inversas de Collatz.
+    """
+    padres = []
+    
+    # Regla Inversa 1 (Siempre existe, de un Par):
+    padre_R = 2 * n
+    padres.append((padre_R, 'R')) # 'R' representa que el paso hacia adelante es de Descanso (R)
+    
+    # Regla Inversa 2 (Solo existe si n es generado por 3m + 1):
+    if (n - 1) % 3 == 0 and n > 1: 
+        padre_L = (n - 1) // 3
+        # El padre debe ser Impar, ya que la regla es 3m + 1
+        if padre_L % 2 != 0:
+            padres.append((padre_L, 'L')) # 'L' representa que el paso hacia adelante es de Ascenso (L)
+
+    return padres
+
+# --- 2. Construcción del Árbol Inverso de Collatz ---
+
+def construir_arbol_ramificado(max_valor=100):
+    """
+    Construye el árbol de Collatz partiendo de 1 hasta un valor máximo.
+    """
+    G = nx.DiGraph() 
+    nodos_a_visitar = [1]
+    nodos_visitados = {1}
+    
+    # Añadir el nodo inicial
+    G.add_node(1, label='1')
+
+    while nodos_a_visitar:
+        nodo_actual = nodos_a_visitar.pop(0)
+
+        # Calcular los padres inversos para crear las ramas
+        for padre, paso_tipo in collatz_inverse_step(nodo_actual):
+            
+            if padre <= max_valor and padre not in nodos_visitados:
+                
+                G.add_edge(padre, nodo_actual, label=paso_tipo)
+                G.add_node(padre, label=str(padre))
+                nodos_visitados.add(padre)
+                nodos_a_visitar.append(padre)
+                
+            elif padre <= max_valor and padre in nodos_visitados:
+                G.add_edge(padre, nodo_actual, label=paso_tipo)
+
+    return G
+
+# --- 3. Función de Visualización del Árbol Ramificado ---
+
+def dibujar_arbol_ramificado(G, max_val):
+    """Dibuja el árbol de Collatz y etiqueta los nodos y aristas, coloreando por paridad."""
+    
+    plt.figure(figsize=(18, 12))
+    
+    try:
+        # Layout jerárquico
+        pos = nx.drawing.nx_pydot.graphviz_layout(G, prog='dot')
+    except ImportError:
+        print("Advertencia: Graphviz no instalado. Usando Kamada-Kawai layout.")
+        pos = nx.kamada_kawai_layout(G) 
+
+    # 🔑 CORRECCIÓN CLAVE: Colorear por Paridad
+    # Si el nodo es PAR (nodo % 2 == 0) -> AZUL
+    # Si el nodo es IMPAR (nodo % 2 != 0) -> ROJO
+    node_colors = ['blue' if node % 2 == 0 else 'red' for node in G.nodes()]
+    
+    # Tamaños de los nodos
+    node_sizes = [700 if node <= 4 else 300 for node in G.nodes()]
+    
+    # Dibujar nodos, etiquetas y aristas
+    nx.draw_networkx_nodes(G, pos, node_size=node_sizes, node_color=node_colors, alpha=0.9)
+    labels = nx.get_node_attributes(G, 'label')
+    nx.draw_networkx_labels(G, pos, labels=labels, font_size=8, font_color='white')
+    nx.draw_networkx_edges(G, pos, edge_color='gray', width=1.0, alpha=0.7, arrowsize=15)
+    
+    # Etiquetas de las aristas (L o R)
+    edge_labels = nx.get_edge_attributes(G, 'label')
+    nx.draw_networkx_edge_labels(G, pos, edge_labels=edge_labels, font_color='black', font_size=8,
+                                 bbox=dict(facecolor='white', alpha=0.7, edgecolor='none'))
+
+    # Leyenda
+    # Adaptamos la leyenda a la nueva codificación de color
+    plt.scatter([], [], color='red', label='Nodos Impares')
+    plt.scatter([], [], color='blue', label='Nodos Pares')
+    plt.scatter([], [], color='white', edgecolor='none', label='L: Ascenso (3N+1)')
+    plt.scatter([], [], color='white', edgecolor='none', label='R: Descenso (N/2)')
+
+    plt.legend(scatterpoints=1, frameon=True, title="Árbol de Expresiones Binario")
+    
+    plt.title(f'Árbol de Expresiones Binario de Collatz (Inverso) hasta N={max_val} (Paridad)', fontsize=18)
+    plt.axis('off')
+    plt.show()
+
+# --- EJEMPLO DE USO ---
+
+MAX_VALOR = 4096 # Mantener un límite bajo para que el árbol sea legible.
+G_arbol = construir_arbol_ramificado(max_valor=MAX_VALOR)
+dibujar_arbol_ramificado(G_arbol, MAX_VALOR)

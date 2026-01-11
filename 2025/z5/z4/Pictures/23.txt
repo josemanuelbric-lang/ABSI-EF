@@ -1,0 +1,47 @@
+import numpy as np
+import matplotlib.pyplot as plt
+from sympy import sieve
+
+def analizar_brecha_gauss(n_max):
+    # 1. Obtención de datos reales
+    primos = np.array(list(sieve.primerange(1, n_max + 1)))
+    n_primos = len(primos)
+    indices = np.arange(1, n_primos + 1)
+    
+    # 2. Recreamos tus señales originales
+    icf_vals = 3.5 + 1.5 * np.sin(primos * 0.5) 
+    zeta_vals = 3.5 + 1.2 * np.sin(primos * 0.51)
+    
+    # 3. Calculamos la "Brecha de Resonancia" absoluta punto a punto
+    brecha = np.abs(icf_vals - zeta_vals)
+    
+    # 4. Área acumulada (La suma de la zona gris a medida que avanzamos)
+    area_acumulada = np.cumsum(brecha)
+    
+    # 5. Ley de Gauss / Teorema de los Primos (Normalizada para comparar escala)
+    # Usamos la aproximación Li(x) simplificada como el logaritmo acumulado
+    curva_gauss = np.cumsum(1 / np.log(primos + 1.1)) 
+    # Escalamos Gauss para que coincida con el final de tu área para ver la FORMA
+    curva_gauss_escalada = curva_gauss * (area_acumulada[-1] / curva_gauss[-1])
+
+    return indices, primos, area_acumulada, curva_gauss_escalada
+
+# Ejecución
+N_TEST = 1048576
+indices, lista_primos, area_gris, gauss = analizar_brecha_gauss(N_TEST)
+
+# Visualización del Descubrimiento
+plt.figure(figsize=(12, 6))
+plt.plot(indices, area_gris, color='gray', label='Área de Brecha Acumulada (Tu Modelo)', lw=2)
+plt.plot(indices, gauss, color='red', linestyle='--', label='Tendencia de Gauss (1/ln p)', alpha=0.8)
+
+plt.title("¿Sigue tu Brecha la Ley de Gauss?")
+plt.xlabel("Cantidad de Números Primos Analizados")
+plt.ylabel("Energía Acumulada de la Brecha")
+plt.legend()
+plt.grid(alpha=0.2)
+plt.show()
+
+# Resultado numérico de correlación
+correlacion = np.corrcoef(area_gris, gauss)[0, 1]
+print(f"Coeficiente de correlación entre tu modelo y Gauss: {correlacion:.4f}")

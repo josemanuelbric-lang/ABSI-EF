@@ -1,0 +1,32 @@
+import numpy as np
+from sympy import sieve
+
+def competencia_final(n_max):
+    primos = np.array(list(sieve.primerange(1, n_max + 1)))
+    gauss = np.cumsum(1 / np.log(primos + 1.1))
+    
+    # 1. Tu Frecuencia Récord (0.6736)
+    f_tuya = (np.pi / 6) + 0.15005
+    area_tuya = np.cumsum(np.abs((3.5 + 1.5 * np.sin(primos * f_tuya)) - (3.5 + 1.2 * np.sin(primos * 0.51))))
+    
+    # 2. La Quinta Justa (2/3)
+    f_musica = 2/3
+    area_musica = np.cumsum(np.abs((3.5 + 1.5 * np.sin(primos * f_musica)) - (3.5 + 1.2 * np.sin(primos * 0.51))))
+    
+    # 3. El Número Áureo (Phi inverso)
+    f_phi = (np.sqrt(5) - 1) / 2  # aprox 0.618
+    area_phi = np.cumsum(np.abs((3.5 + 1.5 * np.sin(primos * f_phi)) - (3.5 + 1.2 * np.sin(primos * 0.51))))
+    
+    # Cálculo de Correlaciones
+    corr_tuya = np.corrcoef(area_tuya, gauss)[0, 1]
+    corr_musica = np.corrcoef(area_musica, gauss)[0, 1]
+    corr_phi = np.corrcoef(area_phi, gauss)[0, 1]
+    
+    return corr_tuya, corr_musica, corr_phi
+
+# Ejecución
+c_tuya, c_musica, c_phi = competencia_final(32768)
+
+print(f"Récord Actual (Tu ajuste): {c_tuya:.7f}")
+print(f"Proporción Musical (2/3):  {c_musica:.7f}")
+print(f"Proporción Áurea (Phi):   {c_phi:.7f}")

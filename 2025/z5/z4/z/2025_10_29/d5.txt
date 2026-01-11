@@ -1,0 +1,48 @@
+import numpy as np
+import matplotlib.pyplot as plt
+
+# --- Parámetros de la TDH ---
+
+# Límite Máximo de Energía (análogo a la Escala de Planck, normalizado a 1.0 para el gráfico)
+LAMBDA_NORMALIZADO = 1.0 
+
+# Número de Atomodimensionales (|D0|): Esto define la cuantificación (resolución)
+NUMERO_ATOMODIMENSIONALES_D0 = 50 
+
+# Función de Densidad de Energía (f(k) = k^3)
+def energia_del_vacio_densidad(k):
+    return k**3
+
+# --- 1. Datos Continuos (TQC Estándar) ---
+# Se utiliza para dibujar la curva suave de la TQC (que idealmente se integraría hasta el infinito).
+k_continuo = np.linspace(0, LAMBDA_NORMALIZADO, 500)
+energia_continua = energia_del_vacio_densidad(k_continuo)
+
+# --- 2. Datos Discretos (TDH Cuantificada) ---
+# La TDH discretiza el espacio-momento en pasos (los A_n).
+k_discreto = np.linspace(0, LAMBDA_NORMALIZADO, NUMERO_ATOMODIMENSIONALES_D0)
+energia_discreta = energia_del_vacio_densidad(k_discreto)
+dk = k_discreto[1] - k_discreto[0]
+
+# --- 3. Generación del Gráfico ---
+
+plt.figure(figsize=(10, 6))
+
+# A. Curva Continua (Problema de la TQC/Continuo)
+plt.plot(k_continuo, energia_continua, label='Densidad Continua (TQC)', color='red', linewidth=3, alpha=0.7)
+
+# B. Barras Discretas (Solución de la TDH)
+# Graficamos la suma de Riemann (rectángulos) que representan la suma finita de los A_n.
+# Usamos 'bar' para mostrar que la integración se convierte en una suma contable.
+plt.bar(k_discreto[:-1], energia_discreta[:-1], width=dk * 0.9, 
+        align='edge', color='blue', alpha=0.5, 
+        label=f'Suma de Atomodimensionales $A_n$ ($|D_0|={NUMERO_ATOMODIMENSIONALES_D0}$)')
+
+# C. Formato del Gráfico
+plt.title(f'Reducción de la Divergencia: De Integral Continua (TQC) a Suma Finita (TDH)')
+plt.xlabel('Momento/Escala de Energía (k) (hasta $\Lambda_{\\text{Normalizado}}$)')
+plt.ylabel('Densidad de Energía del Vacío ($\propto k^3$)')
+plt.grid(True, linestyle='--', alpha=0.6)
+plt.legend()
+plt.tight_layout()
+plt.show()

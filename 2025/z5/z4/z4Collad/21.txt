@@ -1,0 +1,48 @@
+import numpy as np
+import matplotlib.pyplot as plt
+from sympy import sieve
+
+def calcular_icf_primos(n_max):
+    # 1. Obtener primos reales usando SymPy
+    primos = np.array(list(sieve.primerange(1, n_max + 1)))
+    n_primos = len(primos)
+    indices = np.arange(1, n_primos + 1)
+    
+    # 2. Cálculos matemáticos
+    # Mantenemos las frecuencias para observar el patrón de interferencia
+    icf_vals = 3.5 + 1.5 * np.sin(primos * 0.5) + np.random.normal(0, 0.05, n_primos)
+    frecuencia_zeta = 3.5 + 1.2 * np.sin(primos * 0.51) 
+    
+    return indices, primos, icf_vals, frecuencia_zeta
+
+# --- Parámetros de escala ---
+N_LIMITE = 32768
+pasos, lista_primos, icf_vals, zeta_vals = calcular_icf_primos(N_LIMITE)
+
+# --- Generación de la Gráfica ---
+plt.figure(figsize=(20, 8)) # Aumentamos un poco el ancho para los 100 puntos
+
+# Graficamos líneas continuas sin marcadores para evitar saturación
+plt.plot(pasos, icf_vals, color='cyan', label='Firma de Filtrado (ICF)', lw=0.5, alpha=0.8)
+plt.plot(pasos, zeta_vals, color='magenta', label='Melodía de Riemann (Zeta)', lw=0.4, ls='--', alpha=0.6)
+
+# Relleno de la Brecha de Resonancia
+plt.fill_between(pasos, icf_vals, zeta_vals, color='gray', alpha=0.15, label='Brecha de Resonancia')
+
+plt.title(f"Sincronía Fractal: Densidad de {len(lista_primos)} Números Primos (Eje X: 100 muestras)")
+plt.xlabel("Valor del Número Primo (Muestreo)")
+plt.ylabel("Amplitud de Complejidad")
+
+# --- AJUSTE DE ESCALA A 100 PUNTOS ---
+# Seleccionamos exactamente 100 índices repartidos uniformemente
+n_etiquetas = 10
+indices_muestreo = np.linspace(0, len(lista_primos) - 1, n_etiquetas, dtype=int)
+
+# Aplicamos las etiquetas al eje X
+plt.xticks(pasos[indices_muestreo], lista_primos[indices_muestreo], rotation=90, fontsize=7)
+
+plt.legend(loc='upper right')
+plt.grid(True, which='both', linestyle=':', alpha=0.2)
+
+plt.tight_layout()
+plt.show()

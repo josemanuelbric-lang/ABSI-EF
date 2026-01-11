@@ -1,0 +1,78 @@
+import numpy as np
+import matplotlib.pyplot as plt
+
+# --- 1. Datos del Marco TDH ---
+D = 4.0
+F = 3.0
+N_AJUSTADA = 3.87092984 # Tensión Maestra para consistencia
+
+# --- 2. Cálculos TDH (Predicciones) ---
+# 1. Fuerza Fuerte (Alpha_s)
+alpha_s_TDH = (F * (D - N_AJUSTADA)) / ((D + F) - N_AJUSTADA)
+# 2. Electromagnética (Alpha^-1)
+alpha_inv_TDH = (D**F + F**D) - N_AJUSTADA * (1 + N_AJUSTADA / D)
+# 3. Fuerza Débil (Masa W en GeV)
+MW_TDH = (F**D * D) / N_AJUSTADA
+# 4. Gravedad (Jerarquía E_36 - Fórmula ajustada para ~36)
+E36_TDH = (D * F * (D * F / N_AJUSTADA)) - (D**3 / N_AJUSTADA**3)
+
+# --- 3. Valores Observados ---
+alpha_s_OBS = 0.1180
+alpha_inv_OBS = 137.036
+MW_OBS = 80.380
+E36_OBS = 36.0 # Valor de referencia
+
+# --- 4. Normalización y Preparación de Datos ---
+
+# Ejes de la Gráfica de Radar
+ejes = ['Alpha_s', 'Alpha^-1', 'Masa W (GeV)', 'Jerarquía (E_36)']
+num_ejes = len(ejes)
+
+# Valores TDH y Observados
+valores_tdh = np.array([alpha_s_TDH, alpha_inv_TDH, MW_TDH, E36_TDH])
+valores_obs = np.array([alpha_s_OBS, alpha_inv_OBS, MW_OBS, E36_OBS])
+
+# **Paso crucial: NORMALIZACIÓN**
+# La gráfica de radar requiere que los valores estén en una escala comparable (ej., 0 a 1).
+# Usaremos el valor máximo entre las predicciones y observaciones para cada constante.
+
+max_valores = np.maximum(valores_tdh, valores_obs)
+# Para evitar división por cero en Alpha_s, usamos el valor real.
+
+# Normalización Final (TDH / Max) y (OBS / Max)
+tdh_normalizado = valores_tdh / max_valores
+obs_normalizado = valores_obs / max_valores
+
+# Añadir el primer valor al final para cerrar el círculo del radar
+tdh_normalizado = np.concatenate((tdh_normalizado,[tdh_normalizado[0]]))
+obs_normalizado = np.concatenate((obs_normalizado,[obs_normalizado[0]]))
+
+# Ángulos para los ejes
+angulos = np.linspace(0, 2 * np.pi, num_ejes, endpoint=False)
+angulos = np.concatenate((angulos,[angulos[0]]))
+
+
+# --- 5. Generación de la Gráfica de Radar ---
+
+fig, ax = plt.subplots(figsize=(8, 8), subplot_kw=dict(polar=True))
+
+# Trazar la Predicción TDH
+ax.plot(angulos, tdh_normalizado, linewidth=2, linestyle='solid', color='blue', label='TDH Predicción')
+ax.fill(angulos, tdh_normalizado, 'blue', alpha=0.25)
+
+# Trazar el Valor Observado (El Patrón de la Realidad)
+ax.plot(angulos, obs_normalizado, linewidth=2, linestyle='solid', color='red', label='Valor Observado')
+ax.fill(angulos, obs_normalizado, 'red', alpha=0.15)
+
+# Configuración y Etiquetas
+ax.set_xticks(angulos[:-1])
+ax.set_xticklabels(ejes, fontsize=12)
+ax.set_title('Ecuación del Todo (ToE) de la TDH: Coherencia Dimensional vs. Realidad', va='bottom', fontsize=14)
+ax.set_rlabel_position(0) # Mueve las etiquetas de radio
+ax.set_yticks([0.2, 0.4, 0.6, 0.8, 1.0])
+ax.set_yticklabels(["0.2", "0.4", "0.6", "0.8", "1.0"], color="gray", size=7)
+ax.set_ylim(0, 1.1)
+
+ax.legend(loc='lower left', bbox_to_anchor=(0.9, 0.9))
+
+plt.show()
